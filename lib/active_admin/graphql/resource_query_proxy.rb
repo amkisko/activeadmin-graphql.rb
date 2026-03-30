@@ -49,7 +49,10 @@ module ActiveAdmin
         extra = {
           "batch_action" => batch_sym.to_s,
           "collection_selection" => Array(ids).map(&:to_s),
-          "batch_action_inputs" => inputs.to_json
+          # JSON.generate/to_json can attempt to append to a frozen literal on TruffleRuby.
+          # Using JSON.dump with an explicit mutable buffer avoids mutating the gem's internal
+          # literals while still serializing to the string that ActiveAdmin expects.
+          "batch_action_inputs" => JSON.dump(inputs, +"")
         }
         c = controller_for("batch_action", extra)
         perform_controller_command!(c) { c.send(:batch_action) }
