@@ -1,0 +1,13 @@
+default: &default
+  adapter: sqlite3
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS", 5) %>
+  timeout: 5000
+
+development:
+  <<: *default
+  database: storage/development.sqlite3
+
+test:
+  <<: *default
+  # One in-memory database per Ruby process; parallel_tests runs each worker in its own process.
+  database: ":memory:"

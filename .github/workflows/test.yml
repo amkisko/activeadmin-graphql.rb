@@ -1,0 +1,37 @@
+name: test
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  rspec:
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - gemfile: rails72
+            ruby_version: "3.2"
+          - gemfile: rails8ruby34
+            ruby_version: "3.4"
+          - gemfile: rails8truffleruby
+            ruby_version: "truffleruby"
+
+    env:
+      BUNDLE_GEMFILE: ${{ github.workspace }}/gemfiles/${{ matrix.gemfile }}.gemfile
+      RAILS_ENV: test
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby_version }}
+          bundler-cache: true
+
+      - name: RSpec (parallel)
+        run: bundle exec parallel_rspec spec
