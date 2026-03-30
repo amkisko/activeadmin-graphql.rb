@@ -1,6 +1,6 @@
 # GraphQL API
 
-This guide documents the [activeadmin-graphql](https://github.com/amkisko/activeadmin-graphql) gem: an optional GraphQL HTTP API for each ActiveAdmin namespace, built with [graphql-ruby](https://graphql-ruby.org/). The API mirrors the same resources, scoping, and controller behavior as the HTML and JSON admin endpoints: Ransack `q`, menu `scope`, sort `order`, nested `belongs_to` parents, CRUD, batch actions, and custom member and collection actions.
+This guide documents the [activeadmin-graphql](https://github.com/amkisko/activeadmin-graphql.rb) gem: an optional GraphQL HTTP API for each ActiveAdmin namespace, built with [graphql-ruby](https://graphql-ruby.org/). The API mirrors the same resources, scoping, and controller behavior as the HTML and JSON admin endpoints: Ransack `q`, menu `scope`, sort `order`, nested `belongs_to` parents, CRUD, batch actions, and custom member and collection actions.
 
 The HTTP feature is off until you set `graphql = true` on a namespace. That adds a `POST` endpoint only (for example `POST /admin/graphql` for the default `admin` namespace); it does not replace the existing admin UI.
 

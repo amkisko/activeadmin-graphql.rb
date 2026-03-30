@@ -13,7 +13,7 @@ Gem::Specification.new do |spec|
   spec.platform = Gem::Platform::RUBY
   spec.required_ruby_version = ">= 3.2"
 
-  repository_url = "https://github.com/amkisko/activeadmin-graphql"
+  repository_url = "https://github.com/amkisko/activeadmin-graphql.rb"
 
   spec.homepage = repository_url
   spec.metadata = {
