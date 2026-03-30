@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.1 (2026-03-30)
+
+- Fix repository URL in gemspec
+
 ## 0.1.0 (2026-03-30)
 
 - Initial release: GraphQL API for ActiveAdmin extracted from the `activeadmin` fork, usable as `gem "activeadmin-graphql"` alongside `activeadmin` and `graphql`.
