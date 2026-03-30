@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.2 (2026-03-30)
+
+- Fix TruffleRuby compatibility issue with JSON.dump
+
 ## 0.1.1 (2026-03-30)
 
 - Fix repository URL in gemspec
