@@ -155,6 +155,24 @@ separate route with CSRF disabled. Treat this endpoint like any other
 The namespace `authentication_method` runs before any GraphQL work, including
 schema introspection. Unauthenticated clients should not receive a schema.
 
+If you need to turn off schema introspection entirely (even for authenticated
+sessions or specific environments), call
+[`schema.disable_introspection_entry_points`](https://graphql-ruby.org/schema/definition.html#schema-configuration)
+from `graphql_configure_schema`. The hook receives the generated schema class,
+so you can toggle introspection based on Rails environment or other app
+settings:
+
+```ruby
+ActiveAdmin.setup do |config|
+  config.namespace :admin do |admin|
+    admin.graphql = true
+    admin.graphql_configure_schema = lambda do |schema|
+      schema.disable_introspection_entry_points if Rails.env.production?
+    end
+  end
+end
+```
+
 The GraphQL context exposes the same user as `current_active_admin_user` (from
 the namespace `current_user_method`), wrapped for authorization checks.
 
