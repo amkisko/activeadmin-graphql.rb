@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "rack/mock"
+require "stringio"
 
 require_relative "resource_query_proxy/controller"
 
@@ -49,10 +50,9 @@ module ActiveAdmin
         extra = {
           "batch_action" => batch_sym.to_s,
           "collection_selection" => Array(ids).map(&:to_s),
-          # JSON.generate/to_json can attempt to append to a frozen literal on TruffleRuby.
-          # Using JSON.dump with an explicit mutable buffer avoids mutating the gem's internal
-          # literals while still serializing to the string that ActiveAdmin expects.
-          "batch_action_inputs" => JSON.dump(inputs, +"")
+          # TruffleRuby freezes JSON's internal "{}" buffer, so Hash#to_json raises FrozenError.
+          # Dumping into a dedicated StringIO avoids mutating the shared literal.
+          "batch_action_inputs" => dump_batch_inputs(inputs)
         }
         c = controller_for("batch_action", extra)
         perform_controller_command!(c) { c.send(:batch_action) }
@@ -109,6 +109,14 @@ module ActiveAdmin
         h = param_hash_for(action, extra)
         stub_controller!(c, h)
         c
+      end
+
+      def dump_batch_inputs(hash)
+        buffer = StringIO.new
+        JSON.dump(hash, buffer)
+        buffer.string
+      rescue FrozenError
+        JSON.generate(hash)
       end
     end
   end
