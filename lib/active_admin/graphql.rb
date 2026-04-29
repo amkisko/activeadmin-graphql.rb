@@ -28,27 +28,19 @@ module ActiveAdmin
 
         @graphql_features_loaded = true
         ActiveAdmin::Dependency["graphql"].spec!
-        require "graphql"
-        require "graphql/types/json"
-        require "graphql/types/iso_8601_date_time"
-        require "graphql/types/iso_8601_date"
-        require_relative "graphql/resource_interface"
-        require_relative "graphql/schema_field"
-        require_relative "graphql/auth_context"
-        require_relative "graphql/record_source"
-        require_relative "graphql/resource_query_proxy"
-        require_relative "graphql/run_action_payload"
-        require_relative "graphql/run_action_mutation_config"
-        require_relative "graphql/run_action_mutation_dsl"
-        require_relative "graphql/key_value_pair_input"
-        require_relative "graphql/schema_builder"
+        require_graphql_dependencies!
+        require_active_admin_graphql_components!
       end
 
       # @param namespace [ActiveAdmin::Namespace]
       # @return [Class] schema class (subclass of GraphQL::Schema)
+      #
+      # Cached per namespace for the process. In development, call
+      # {clear_schema_cache!} or {clear_schema_for!} after ActiveAdmin +unload!+
+      # (already wired in {Integration::ApplicationUnloadClearsGraphQLSchema}) or
+      # when admin registrations change without a full unload.
       def schema_for(namespace)
         cache_key = namespace.name
-        SCHEMA_CACHE.delete(cache_key) if defined?(Rails) && Rails.env.development?
         SCHEMA_CACHE[cache_key] ||= SchemaBuilder.new(namespace).build
       end
 
@@ -58,6 +50,28 @@ module ActiveAdmin
 
       def clear_schema_for!(namespace)
         SCHEMA_CACHE.delete(namespace.name)
+      end
+
+      def require_graphql_dependencies!
+        require "graphql"
+        require "graphql/types/json"
+        require "graphql/types/iso_8601_date_time"
+        require "graphql/types/iso_8601_date"
+      end
+
+      def require_active_admin_graphql_components!
+        %w[
+          graphql/resource_interface
+          graphql/schema_field
+          graphql/auth_context
+          graphql/record_source
+          graphql/resource_query_proxy
+          graphql/run_action_payload
+          graphql/run_action_mutation_config
+          graphql/run_action_mutation_dsl
+          graphql/key_value_pair_input
+          graphql/schema_builder
+        ].each { |path| require_relative path }
       end
     end
   end

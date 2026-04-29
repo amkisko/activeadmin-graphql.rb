@@ -8,6 +8,7 @@ module ActiveAdmin
         include QueryTypeCollection
         include QueryTypeMember
         include QueryTypePages
+        include QueryTypePolicies
 
         def build_query_type(registered_resource_union:)
           builder = self
@@ -45,6 +46,12 @@ module ActiveAdmin
             )
 
             builder.add_page_query_fields!(self, builder: builder, ns: ns)
+            builder.add_activeadmin_policies_query_field!(
+              self,
+              builder: builder,
+              ns: ns,
+              aa_by_graphql_type_name: aa_by_graphql_type_name
+            )
           end
         end
       end

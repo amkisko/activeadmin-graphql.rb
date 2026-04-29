@@ -12,15 +12,24 @@ module ActiveAdmin
         end
 
         def param_hash_for(action, extra)
+          base_graphql_params(action)
+            .merge(extra.stringify_keys)
+            .yield_self { |params| merge_graph_params!(params) }
+        end
+
+        def base_graphql_params(action)
           {
             "action" => action,
             "controller" => "active_admin/graphql"
-          }.merge(extra.stringify_keys).tap do |h|
-            merge_ransack!(h)
-            h["scope"] = @graph_params["scope"].to_s if @graph_params["scope"].present?
-            h["order"] = @graph_params["order"].to_s if @graph_params["order"].present?
-            merge_belongs_to!(h)
-          end
+          }
+        end
+
+        def merge_graph_params!(hash)
+          merge_ransack!(hash)
+          assign_if_present!(hash, "scope", @graph_params["scope"])
+          assign_if_present!(hash, "order", @graph_params["order"])
+          merge_belongs_to!(hash)
+          hash
         end
 
         def merge_ransack!(h)
@@ -48,6 +57,13 @@ module ActiveAdmin
           key = btc.to_param.to_s
           val = @graph_params[key]
           h[key] = val.to_s if val.present?
+        end
+
+        def assign_if_present!(hash, key, value)
+          return hash if value.blank?
+
+          hash[key] = value.to_s
+          hash
         end
 
         def stub_controller!(controller, hash)

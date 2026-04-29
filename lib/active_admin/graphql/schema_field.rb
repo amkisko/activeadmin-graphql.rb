@@ -9,8 +9,10 @@ module ActiveAdmin
     # That hook runs from {#visible?}; it does not replace graphql-ruby's visibility system—it
     # composes with +super+ like any custom +Field+ class.
     class SchemaField < ::GraphQL::Schema::Field
-      def initialize(visibility: nil, **kwargs, &block)
+      def initialize(visibility: nil, authorize: nil, authorize_action: nil, **kwargs, &block)
         @visibility = visibility
+        @authorize = authorize
+        @authorize_action = authorize_action
         super(**kwargs, &block)
       end
 
@@ -23,6 +25,24 @@ module ActiveAdmin
         return true if hook.nil?
 
         !!hook.call(ctx, @visibility)
+      end
+
+      def authorized?(object, args, ctx)
+        return false unless super
+
+        owner = self.owner
+        aa_resource = owner.respond_to?(:activeadmin_graphql_resource) ? owner.activeadmin_graphql_resource : nil
+        return true unless aa_resource
+
+        enabled = if @authorize.nil?
+          ctx[:namespace]&.graphql_custom_field_authorization_default != false
+        else
+          @authorize
+        end
+        return true unless enabled
+
+        action = @authorize_action || ActiveAdmin::Authorization::READ
+        !!ctx[:auth]&.authorized?(aa_resource, action, object)
       end
     end
   end

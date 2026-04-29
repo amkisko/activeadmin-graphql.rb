@@ -30,18 +30,26 @@ module ActiveAdmin
         end
       end
 
-      def extract_pair(e)
-        if e.respond_to?(:key) && e.respond_to?(:value) && !e.is_a?(Hash)
-          [e.key, e.value]
-        elsif e.is_a?(Hash)
-          k = e["key"] || e[:key]
-          v = e["value"] || e[:value]
-          raise ::GraphQL::ExecutionError, "key/value pair missing key" if k.nil?
+      def extract_pair(entry)
+        return extract_from_struct(entry) if key_value_struct?(entry)
+        return extract_from_hash(entry) if entry.is_a?(Hash)
 
-          [k, v]
-        else
-          raise ::GraphQL::ExecutionError, "invalid key/value pair entry: #{e.class}"
-        end
+        raise ::GraphQL::ExecutionError, "invalid key/value pair entry: #{entry.class}"
+      end
+
+      def key_value_struct?(entry)
+        entry.respond_to?(:key) && entry.respond_to?(:value) && !entry.is_a?(Hash)
+      end
+
+      def extract_from_struct(entry)
+        [entry.key, entry.value]
+      end
+
+      def extract_from_hash(entry)
+        key = entry["key"] || entry[:key]
+        raise ::GraphQL::ExecutionError, "key/value pair missing key" if key.nil?
+
+        [key, entry["value"] || entry[:value]]
       end
     end
   end

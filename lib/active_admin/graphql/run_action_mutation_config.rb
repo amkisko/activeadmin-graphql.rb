@@ -12,6 +12,8 @@ module ActiveAdmin
       attr_accessor :resolve_proc
       # Optional block evaluated in the graphql-ruby +field+ DSL context (+argument+, …) for per-action fields.
       attr_accessor :arguments_proc
+      # Optional authorization toggle for this mutation configuration. +nil+ means namespace default.
+      attr_accessor :authorize
 
       def self.ensure_graphql_object_subclass!(type)
         unless type.is_a?(Class) && type < ::GraphQL::Schema::Object

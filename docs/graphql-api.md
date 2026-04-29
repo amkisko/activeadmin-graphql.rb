@@ -46,10 +46,16 @@ Each namespace inherits these options (defaults in parentheses):
 * `graphql_path` — path segment under the namespace mount (`"graphql"`).
 * `graphql_multiplex_max` — maximum operations per multiplexed JSON array
   request (`20`).
-* `graphql_max_complexity` — passed to graphql-ruby `max_complexity` when set.
-* `graphql_max_depth` — passed to `max_depth` when set.
-* `graphql_default_page_size` / `graphql_default_max_page_size` — connection
-  defaults when set.
+* `graphql_max_complexity` — passed to graphql-ruby `max_complexity` (`300` by
+  default; set a higher value if legitimate queries are rejected). Set to
+  `nil` to disable the limit.
+* `graphql_max_depth` — passed to `max_depth` (`18` by default). Set to `nil`
+  to disable.
+* `graphql_batch_action_max_ids` — maximum length of the `ids` argument on
+  `*_batch_action` mutations (`5000` by default; set `0` to disable the cap).
+* `graphql_default_page_size` / `graphql_default_max_page_size` — schema
+  connection defaults (`25` / `100`); needed for graphql-ruby complexity scoring
+  on connection fields when `max_complexity` is enabled.
 * `graphql_dataloader` — graphql-ruby dataloader plugin (`nil` = use
   `GraphQL::Dataloader`). Set to `GraphQL::Dataloader::AsyncDataloader` when
   the [`async` gem](https://github.com/socketry/async) is loaded if you want

@@ -27,6 +27,10 @@ module ActiveAdmin
       def arguments(&block)
         @mutation_config.arguments_proc = block
       end
+
+      def authorize(value = true)
+        @mutation_config.authorize = !!value
+      end
     end
   end
 end

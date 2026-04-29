@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.2.0 (2026-04-29)
+
+- Add `activeadmin_policies` GraphQL policy surfaces:
+  - global `activeadmin_policies` for resources/pages
+  - per-object `activeadmin_policies` on resource objects
+  - preflight `activeadmin_policies_for(type_name:, ids:, path:)` for per-record checks before running queries/mutations/actions
+- Switch policy payloads to allow-lists (`allowed_actions`, `allowed_member_actions`, `allowed_collection_actions`, `allowed_batch_actions`) and add namespace customization hooks (`graphql_policy_actions`, `graphql_policy_action_mapper`, `graphql_policy_extra`, `graphql_policy_transform`)
+- Enforce authorization-by-default for custom GraphQL fields/mutations with explicit opt-out (`authorize: false` / mutation DSL `authorize false`)
+- Add namespace defaults/settings and request specs covering policies, customization hooks, and auth-toggle behavior
+
 ## 0.1.2 (2026-03-30)
 
 - Fix TruffleRuby compatibility issue with JSON.dump

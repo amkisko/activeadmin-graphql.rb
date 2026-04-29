@@ -22,6 +22,19 @@ module GraphqlSpecRunPayloadFixtures
   end
 end
 
+module ActiveAdmin
+  module GraphQLSpecSupport
+    class CreateAllowedReadDeniedRecordAuthorizationAdapter < ActiveAdmin::AuthorizationAdapter
+      def authorized?(action, subject = nil)
+        return true if action == ActiveAdmin::Authorization::CREATE
+        return false if action == ActiveAdmin::Authorization::READ && subject.is_a?(Post)
+
+        true
+      end
+    end
+  end
+end
+
 RSpec.describe "ActiveAdmin GraphQL", type: :request do
   around do |example|
     with_resources_during(example) do
@@ -87,7 +100,7 @@ RSpec.describe "ActiveAdmin GraphQL", type: :request do
       expect(schema["subscriptionType"]).to be_nil
 
       q_names = d.fetch("queryFields").fetch("fields").map { |f| f.fetch("name") }
-      expect(q_names).to include("posts", "post", "registered_resource")
+      expect(q_names).to include("posts", "post", "registered_resource", "activeadmin_policies")
 
       m_names = d.fetch("mutationFields").fetch("fields").map { |f| f.fetch("name") }
       expect(m_names).to include("create_post", "update_post", "delete_post")
@@ -97,7 +110,7 @@ RSpec.describe "ActiveAdmin GraphQL", type: :request do
       expect(post_t.fetch("name")).to eq("Post")
       expect(post_t.fetch("kind")).to eq("OBJECT")
       post_field_names = post_t.fetch("fields").map { |f| f.fetch("name") }
-      expect(post_field_names).to include("id", "title", "body", "starred")
+      expect(post_field_names).to include("id", "title", "body", "starred", "activeadmin_policies")
       expect(post_t.fetch("interfaces").map { |i| i.fetch("name") }).to include("ActiveAdminResource")
 
       expect(d.fetch("resourceIface").fetch("kind")).to eq("INTERFACE")
@@ -506,6 +519,81 @@ RSpec.describe "ActiveAdmin GraphQL", type: :request do
     end
   end
 
+  describe "activeadmin_policies" do
+    it "returns a global resource/page policy matrix" do
+      data = gql!(<<~GQL)
+        {
+          activeadmin_policies {
+            resources {
+              type_name
+              activeadmin_policies {
+                allowed_actions
+                allowed_member_actions
+                allowed_collection_actions
+                allowed_batch_actions
+              }
+            }
+            pages {
+              name
+              activeadmin_policies {
+                allowed_actions
+              }
+            }
+          }
+        }
+      GQL
+
+      expect(response).to have_http_status(:ok)
+      expect(data["errors"]).to be_nil
+      resources = data.dig("data", "activeadmin_policies", "resources")
+      post_row = resources.find { |row| row["type_name"] == "Post" }
+      expect(post_row).not_to be_nil
+      expect(post_row.dig("activeadmin_policies", "allowed_actions")).to match_array(%w[read create update destroy])
+    end
+
+    it "returns per-record policies on resource objects" do
+      post = Post.create!(title: "Policy object", body: "b")
+      data = gql!(<<~GQL)
+        {
+          post(id: "#{post.id}") {
+            id
+            activeadmin_policies {
+              allowed_actions
+              allowed_member_actions
+              allowed_collection_actions
+              allowed_batch_actions
+            }
+          }
+        }
+      GQL
+
+      expect(response).to have_http_status(:ok)
+      expect(data["errors"]).to be_nil
+      expect(data.dig("data", "post", "activeadmin_policies", "allowed_actions")).to match_array(%w[read create update destroy])
+    end
+
+    it "returns preflight per-record policies via activeadmin_policies_for" do
+      post = Post.create!(title: "Policy preflight", body: "b")
+      data = gql!(<<~GQL)
+        {
+          activeadmin_policies_for(type_name: "Post", ids: ["#{post.id}"]) {
+            id
+            activeadmin_policies {
+              allowed_actions
+              allowed_member_actions
+            }
+          }
+        }
+      GQL
+
+      expect(response).to have_http_status(:ok)
+      expect(data["errors"]).to be_nil
+      row = data.dig("data", "activeadmin_policies_for").first
+      expect(row.fetch("id")).to eq(post.id.to_s)
+      expect(row.dig("activeadmin_policies", "allowed_actions")).to include("read")
+    end
+  end
+
   context "when the namespace requires Devise authentication" do
     around do |example|
       ns = ActiveAdmin.application.namespaces[:admin]
@@ -556,6 +644,130 @@ RSpec.describe "ActiveAdmin GraphQL", type: :request do
       data = JSON.parse(response.body)
       expect(data["errors"]).to be_nil
       expect(data.dig("data", "__schema", "queryType", "name")).to eq("Query")
+    end
+  end
+
+  context "activeadmin_policies with a denying authorization adapter" do
+    around do |example|
+      ns = ActiveAdmin.application.namespaces[:admin]
+      previous = ns.authorization_adapter
+      ns.authorization_adapter = ActiveAdmin::GraphQLSpecSupport::DenyPostAuthorizationAdapter
+      example.run
+    ensure
+      ns.authorization_adapter = previous
+    end
+
+    it "returns false policy flags for denied resources without raising" do
+      data = gql!(<<~GQL)
+        {
+          activeadmin_policies {
+            resources {
+              type_name
+              activeadmin_policies { allowed_actions }
+            }
+          }
+        }
+      GQL
+
+      expect(response).to have_http_status(:ok)
+      expect(data["errors"]).to be_nil
+      post_row = data.dig("data", "activeadmin_policies", "resources").find { |row| row["type_name"] == "Post" }
+      expect(post_row.dig("activeadmin_policies", "allowed_actions")).to eq([])
+    end
+  end
+
+  context "custom field authorization toggle" do
+    around do |example|
+      with_resources_during(example) do
+        ActiveAdmin.application.namespaces[:admin].graphql = true
+        ActiveAdmin.register(Post) do
+          graphql do
+            configure do
+              field :graphql_private_note, GraphQL::Types::String, null: true, camelize: false do
+                "private"
+              end
+              field :graphql_public_note, GraphQL::Types::String, null: true, camelize: false, authorize: false do
+                "public"
+              end
+              define_method(:graphql_private_note) { "private" }
+              define_method(:graphql_public_note) { "public" }
+            end
+          end
+        end
+      end
+    end
+
+    around do |example|
+      ns = ActiveAdmin.application.namespaces[:admin]
+      previous = ns.authorization_adapter
+      ns.authorization_adapter = ActiveAdmin::GraphQLSpecSupport::CreateAllowedReadDeniedRecordAuthorizationAdapter
+      example.run
+    ensure
+      ns.authorization_adapter = previous if ns
+    end
+
+    it "keeps custom fields authorized by default and allows explicit authorize: false" do
+      data = gql!(<<~GQL)
+        mutation {
+          create_post(input: { title: "Auth toggle", body: "x" }) {
+            id
+            graphql_private_note
+            graphql_public_note
+          }
+        }
+      GQL
+
+      expect(response).to have_http_status(:ok)
+      expect(data["errors"]).to be_nil
+      expect(data.dig("data", "create_post", "graphql_private_note")).to be_nil
+      expect(data.dig("data", "create_post", "graphql_public_note")).to eq("public")
+    end
+  end
+
+  context "custom mutation authorization toggle" do
+    around do |example|
+      with_resources_during(example) do
+        ActiveAdmin.application.namespaces[:admin].graphql = true
+        ActiveAdmin.register(Post) do
+          member_action :graphql_noop, method: :put do
+            head :ok
+          end
+          graphql do
+            member_action_mutation :graphql_noop do
+              authorize false
+              resolve do |proxy:, **|
+                ActiveAdmin::GraphQL::RunActionPayload::Result.new(ok: true, status: 200, location: nil, body: nil)
+              end
+            end
+          end
+        end
+      end
+    end
+
+    around do |example|
+      ns = ActiveAdmin.application.namespaces[:admin]
+      previous = ns.authorization_adapter
+      ns.authorization_adapter = ActiveAdmin::GraphQLSpecSupport::DenyPostAuthorizationAdapter
+      example.run
+    ensure
+      ns.authorization_adapter = previous
+    end
+
+    it "allows opting out of default authorization for custom member action mutation resolvers" do
+      post = Post.create!(title: "M", body: "b")
+      data = gql!(<<~GQL)
+        mutation {
+          posts_member_graphql_noop(id: "#{post.id}") {
+            ok
+            status
+          }
+        }
+      GQL
+
+      expect(response).to have_http_status(:ok)
+      expect(data["errors"]).to be_nil
+      expect(data.dig("data", "posts_member_graphql_noop", "ok")).to be(true)
+      expect(data.dig("data", "posts_member_graphql_noop", "status")).to eq(200)
     end
   end
 
@@ -774,6 +986,18 @@ RSpec.describe "ActiveAdmin GraphQL", type: :request do
     expect(results.second.dig("data", "__typename")).to eq("Query")
   end
 
+  it "returns 413 when multiplex operation count exceeds graphql_multiplex_max" do
+    admin_ns = ActiveAdmin.application.namespaces[:admin]
+    max_n = admin_ns.graphql_multiplex_max
+    payload = (max_n + 1).times.map { |i| {query: "query Q#{i} { __typename }"} }
+
+    post "/admin/graphql", params: payload, as: :json
+
+    expect(response).to have_http_status(:content_too_large)
+    body = JSON.parse(response.body)
+    expect(body.dig("errors", 0, "message")).to include("Multiplex exceeds maximum")
+  end
+
   context "nested resource (belongs_to)" do
     around do |example|
       with_resources_during(example) do
@@ -873,6 +1097,30 @@ RSpec.describe "ActiveAdmin GraphQL", type: :request do
       expect(data.dig("data", "posts_batch_action", "ok")).to be(true)
       expect(a.reload.starred).to be(true)
       expect(b.reload.starred).to be(true)
+    end
+
+    it "rejects batch_action when ids exceed graphql_batch_action_max_ids" do
+      admin_ns = ActiveAdmin.application.namespaces[:admin]
+      previous = admin_ns.graphql_batch_action_max_ids
+      admin_ns.graphql_batch_action_max_ids = 2
+      a = Post.create!(title: "A", body: "x", starred: false)
+      b = Post.create!(title: "B", body: "y", starred: false)
+      c = Post.create!(title: "C", body: "z", starred: false)
+
+      begin
+        data = gql!(<<~GQL)
+          mutation {
+            posts_batch_action(batch_action: "star_these", ids: ["#{a.id}", "#{b.id}", "#{c.id}"]) {
+              ok
+            }
+          }
+        GQL
+
+        expect(data["errors"]).to be_present
+        expect(data["errors"].first.fetch("message")).to include("cannot exceed 2 entries")
+      ensure
+        admin_ns.graphql_batch_action_max_ids = previous
+      end
     end
 
     it "runs a member action by name" do

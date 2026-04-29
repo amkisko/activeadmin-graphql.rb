@@ -136,10 +136,17 @@ Metrics/ClassLength:
 Metrics/CyclomaticComplexity:
   Enabled: true
   Max: 10
+  Exclude:
+    # GraphQL schema builder files are DSL heavy; metrics noise there.
+    - lib/active_admin/graphql/schema_builder/**/*.rb
 Metrics/PerceivedComplexity:
   Enabled: true
   Max: 10
+  Exclude:
+    - lib/active_admin/graphql/schema_builder/**/*.rb
 Metrics/AbcSize:
   Enabled: true
   Max: 15
   CountRepeatedAttributes: false
+  Exclude:
+    - lib/active_admin/graphql/schema_builder/**/*.rb

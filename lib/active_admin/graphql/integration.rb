@@ -31,11 +31,18 @@ module ActiveAdmin
         ns.register :graphql_visibility, nil
         ns.register :graphql_visibility_profile, nil
         ns.register :graphql_schema_visible, nil
-        ns.register :graphql_max_complexity, nil
-        ns.register :graphql_max_depth, nil
-        ns.register :graphql_default_page_size, nil
-        ns.register :graphql_default_max_page_size, nil
+        ns.register :graphql_max_complexity, 300
+        ns.register :graphql_max_depth, 18
+        ns.register :graphql_batch_action_max_ids, 5000
+        ns.register :graphql_default_page_size, 25
+        ns.register :graphql_default_max_page_size, 100
         ns.register :graphql_configure_schema, nil
+        ns.register :graphql_policy_actions, nil
+        ns.register :graphql_policy_action_mapper, nil
+        ns.register :graphql_policy_extra, nil
+        ns.register :graphql_policy_transform, nil
+        ns.register :graphql_custom_field_authorization_default, true
+        ns.register :graphql_custom_mutation_authorization_default, true
       end
 
       def register_railtie!
@@ -114,18 +121,31 @@ module ActiveAdmin
         private
 
         def define_graphql_routes
-          namespaces.each do |namespace|
-            next unless namespace.graphql
+          graphql_namespaces.each do |namespace|
+            segment = graphql_segment_for(namespace)
+            defaults = graphql_route_defaults(namespace)
+            mount_graphql_route(namespace, segment, defaults)
+          end
+        end
 
-            segment = namespace.graphql_path.to_s.delete_prefix("/").presence || "graphql"
-            defaults = {active_admin_namespace: namespace.name}
+        def graphql_namespaces
+          namespaces.select(&:graphql)
+        end
 
-            if namespace.root?
+        def graphql_segment_for(namespace)
+          namespace.graphql_path.to_s.delete_prefix("/").presence || "graphql"
+        end
+
+        def graphql_route_defaults(namespace)
+          {active_admin_namespace: namespace.name}
+        end
+
+        def mount_graphql_route(namespace, segment, defaults)
+          if namespace.root?
+            router.post segment, controller: "/active_admin/graphql", action: "execute", defaults: defaults
+          else
+            router.namespace namespace.name, **namespace.route_options.dup do
               router.post segment, controller: "/active_admin/graphql", action: "execute", defaults: defaults
-            else
-              router.namespace namespace.name, **namespace.route_options.dup do
-                router.post segment, controller: "/active_admin/graphql", action: "execute", defaults: defaults
-              end
             end
           end
         end

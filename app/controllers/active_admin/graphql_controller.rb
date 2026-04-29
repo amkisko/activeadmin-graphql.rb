@@ -14,35 +14,9 @@ module ActiveAdmin
 
     def execute
       schema = ActiveAdmin::GraphQL.schema_for(active_admin_namespace)
+      return render_multiplex(schema) if multiplex_request?
 
-      if multiplex_request?
-        operations = multiplex_operations
-        max_n = active_admin_namespace.graphql_multiplex_max || 20
-        if operations.size > max_n
-          return render json: {errors: [{message: "Multiplex exceeds maximum of #{max_n}"}]},
-            status: :content_too_large
-        end
-
-        results = schema.multiplex(
-          operations.map do |op|
-            {
-              query: op[:query],
-              variables: ensure_variables(op[:variables]),
-              operation_name: op[:operation_name],
-              context: graphql_context
-            }
-          end
-        )
-        render json: results.map(&:to_h), status: :ok
-      else
-        result = schema.execute(
-          query: query_string,
-          variables: ensure_variables(variables_hash),
-          operation_name: operation_name,
-          context: graphql_context
-        )
-        render json: result.to_h, status: :ok
-      end
+      render_single(schema)
     end
 
     def active_admin_namespace
@@ -163,6 +137,51 @@ module ActiveAdmin
       end
     rescue JSON::ParserError
       {}
+    end
+
+    def render_multiplex(schema)
+      operations = multiplex_operations
+      return render_multiplex_limit_error!(operations.size) if exceeds_multiplex_limit?(operations)
+
+      payloads = build_multiplex_payloads(operations)
+      results = schema.multiplex(payloads)
+      render json: results.map(&:to_h), status: :ok
+    end
+
+    def render_single(schema)
+      result = schema.execute(
+        query: query_string,
+        variables: ensure_variables(variables_hash),
+        operation_name: operation_name,
+        context: graphql_context
+      )
+      render json: result.to_h, status: :ok
+    end
+
+    def exceeds_multiplex_limit?(operations)
+      operations.size > max_multiplex_operations
+    end
+
+    def max_multiplex_operations
+      active_admin_namespace.graphql_multiplex_max || 20
+    end
+
+    def render_multiplex_limit_error!(count)
+      max_n = max_multiplex_operations
+      msg = "Multiplex exceeds maximum of #{max_n} (received #{count})"
+      render json: {errors: [{message: msg}]}, status: :content_too_large
+    end
+
+    def build_multiplex_payloads(operations)
+      context = graphql_context
+      operations.map do |op|
+        {
+          query: op[:query],
+          variables: ensure_variables(op[:variables]),
+          operation_name: op[:operation_name],
+          context: context
+        }
+      end
     end
   end
 end

@@ -33,7 +33,9 @@ module ActiveAdmin
             define_method(fname.to_sym) do |action:, params: nil, **kw|
               auth = context[:auth]
               mdl = aa_res.resource_class
-              unless auth.authorized?(aa_res, ActiveAdmin::Authorization::READ, mdl)
+              cfg = aa_res.graphql_config.collection_run_action
+              auth_enabled = cfg.authorize.nil? ? (ns.graphql_custom_mutation_authorization_default != false) : cfg.authorize
+              if auth_enabled && !auth.authorized?(aa_res, ActiveAdmin::Authorization::READ, mdl)
                 raise ::GraphQL::ExecutionError, "not authorized to read #{mdl.name}"
               end
 
@@ -91,7 +93,14 @@ module ActiveAdmin
             define_method(fname) do |params: nil, **kw|
               auth = context[:auth]
               mdl = aa_res.resource_class
-              unless auth.authorized?(aa_res, ActiveAdmin::Authorization::READ, mdl)
+              auth_enabled =
+                if per_cfg&.authorize.nil?
+                  base_cfg = aa_res.graphql_config.collection_run_action
+                  base_cfg.authorize.nil? ? (ns.graphql_custom_mutation_authorization_default != false) : base_cfg.authorize
+                else
+                  per_cfg.authorize
+                end
+              if auth_enabled && !auth.authorized?(aa_res, ActiveAdmin::Authorization::READ, mdl)
                 raise ::GraphQL::ExecutionError, "not authorized to read #{mdl.name}"
               end
 

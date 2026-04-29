@@ -6,6 +6,19 @@ module ActiveAdmin
       module TypesObject
         private
 
+        def policy_set_type
+          @policy_set_type ||= Class.new(::GraphQL::Schema::Object) do
+            graphql_name "ActiveAdminPolicySet"
+            description "Allowed ActiveAdmin actions for this subject."
+
+            field :allowed_actions, [::GraphQL::Types::String], null: false, camelize: false
+            field :allowed_member_actions, [::GraphQL::Types::String], null: false, camelize: false
+            field :allowed_collection_actions, [::GraphQL::Types::String], null: false, camelize: false
+            field :allowed_batch_actions, [::GraphQL::Types::String], null: false, camelize: false
+            field :extra, ::GraphQL::Types::JSON, null: true, camelize: false
+          end
+        end
+
         def build_enum_type(aa_res, column_name, mapping)
           key = [aa_res.resource_class.name, column_name.to_s]
           return @enum_types[key] if @enum_types[key]
@@ -61,14 +74,17 @@ module ActiveAdmin
           attr_names = attributes_for(aa_res).map(&:to_s)
 
           type_class = Class.new(::GraphQL::Schema::Object) do
+            field_class ::ActiveAdmin::GraphQL::SchemaField
             graphql_name gname
             description "ActiveAdmin resource `#{aa_res.resource_name}`"
             implements ::ActiveAdmin::GraphQL::ResourceInterface
+
+            define_singleton_method(:activeadmin_graphql_resource) { aa_res }
           end
 
           pk_cols = ActiveAdmin::PrimaryKey.columns(model)
 
-          type_class.field :id, ::GraphQL::Types::ID, null: false
+          type_class.field :id, ::GraphQL::Types::ID, null: false, authorize: false
           type_class.define_method(:id) { ActiveAdmin::PrimaryKey.graphql_id_value(object) }
 
           attr_names.each do |name|
@@ -78,9 +94,15 @@ module ActiveAdmin
             next unless col
 
             gql_t = graphql_scalar_for_column(aa_res, model, col)
-            type_class.field(name.to_sym, gql_t, null: true, camelize: false)
+            type_class.field(name.to_sym, gql_t, null: true, camelize: false, authorize: false)
 
             type_class.define_method(name.to_sym) { object.public_send(name) }
+          end
+
+          type_class.field :activeadmin_policies, policy_set_type, null: false, camelize: false, authorize: false
+          type_class.define_method(:activeadmin_policies) do
+            builder = context[:namespace] && ActiveAdmin::GraphQL::SchemaBuilder.new(context[:namespace])
+            builder.send(:build_policy_set, auth: context[:auth], subject_owner: aa_res, subject: object, context: context)
           end
 
           if (ext = aa_res.graphql_config.extension_block)

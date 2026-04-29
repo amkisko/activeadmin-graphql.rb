@@ -29,13 +29,21 @@ module ActiveAdmin
             define_method(fname.to_sym) do |batch_action:, ids:, inputs: nil, **kw|
               auth = context[:auth]
               mdl = aa_res.resource_class
-              unless auth.authorized?(aa_res, ActiveAdmin::Authorization::READ, mdl)
+              cfg = aa_res.graphql_config.batch_run_action
+              auth_enabled = cfg.authorize.nil? ? (ns.graphql_custom_mutation_authorization_default != false) : cfg.authorize
+              if auth_enabled && !auth.authorized?(aa_res, ActiveAdmin::Authorization::READ, mdl)
                 raise ::GraphQL::ExecutionError, "not authorized to read #{mdl.name}"
               end
 
               ba = batch_action.to_s
               unless allowed.include?(ba)
                 raise ::GraphQL::ExecutionError, "Unknown batch_action #{ba.inspect} for #{plural}"
+              end
+
+              max_ids = ns.graphql_batch_action_max_ids
+              if max_ids.is_a?(Integer) && max_ids.positive? && ids.size > max_ids
+                raise ::GraphQL::ExecutionError,
+                  "ids cannot exceed #{max_ids} entries (received #{ids.size})"
               end
 
               proxy = ResourceQueryProxy.new(
