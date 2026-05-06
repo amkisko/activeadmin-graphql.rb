@@ -126,7 +126,7 @@ GEM
     formtastic_i18n (0.7.0)
     globalid (1.3.0)
       activesupport (>= 6.1)
-    graphql (2.5.22)
+    graphql (2.5.26)
       base64
       fiber-storage
       logger
@@ -471,7 +471,7 @@ CHECKSUMS
   formtastic (6.0.0) sha256=c398906b65978fec3d045d6792f82cf9641f086ac9f17357b2b382f723126165
   formtastic_i18n (0.7.0) sha256=ecef51c9e9030c00f19e69d2483b77f4515c9587d74268b76cf4b6e7988c8e78
   globalid (1.3.0) sha256=05c639ad6eb4594522a0b07983022f04aa7254626ab69445a0e493aa3786ff11
-  graphql (2.5.22) sha256=d2dccbe6a432e1b89bdb8ccca0572a6bb867a28caceb5fe029ee7741c7854bc0
+  graphql (2.5.26) sha256=be3a148cc9ae52056d38f45cf9864a621a12fe138c027e324b0841dc19979576
   has_scope (0.9.0) sha256=783a93006cf898525bb4899696f1d088c0f6ff897d6df2bf03fdbbe0d0b5124c
   i18n (1.14.8) sha256=285778639134865c5e0f6269e0b818256017e8cde89993fdfcbfb64d088824a5
   inherited_resources (1.14.0) sha256=c90327c2898aa1354c0e4bc46616cb35eadef6d135746e23a83ca09987b2a308
