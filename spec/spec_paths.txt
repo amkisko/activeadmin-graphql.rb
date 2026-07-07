@@ -1,0 +1,7 @@
+spec/requests/graphql_spec.rb
+spec/unit/key_value_pairs_spec.rb
+spec/unit/record_source_composite_spec.rb
+spec/unit/record_source_spec.rb
+spec/unit/resource_query_proxy_spec.rb
+spec/unit/routing_graphql_spec.rb
+spec/unit/schema_builder_spec.rb

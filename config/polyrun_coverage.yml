@@ -1,0 +1,5 @@
+track_under:
+  - lib
+reject_patterns:
+  - "/lib/active_admin/graphql/version.rb"
+minimum_line_percent: 85

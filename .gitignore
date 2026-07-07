@@ -47,3 +47,5 @@
 .trunk/user_trunk.yaml
 .trunk/user.yaml
 .trunk/tmp
+
+.pray/cache

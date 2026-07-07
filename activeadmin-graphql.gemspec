@@ -36,7 +36,8 @@ Gem::Specification.new do |spec|
     ].select { |f| File.file?(f) } +
       Dir["docs/**/*.md"] +
       Dir["app/**/*.rb"] +
-      Dir["lib/**/*.rb"]
+      Dir["lib/**/*.rb"] +
+      Dir["sig/**/*"]
   end
 
   spec.require_paths = ["lib"]
@@ -51,11 +52,11 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "parallel_tests", "~> 4.7"
   spec.add_development_dependency "rails", ">= 6.1"
   spec.add_development_dependency "rspec", "~> 3"
+  spec.add_development_dependency "polyrun", "~> 1.5.0"
   spec.add_development_dependency "rspec-rails", ">= 6"
   spec.add_development_dependency "rubocop-rails", "~> 2.34"
   spec.add_development_dependency "rubocop-rspec", "~> 3.8"
   spec.add_development_dependency "rubocop-thread_safety", "~> 0.7"
-  spec.add_development_dependency "simplecov", "~> 0.22"
   spec.add_development_dependency "sprockets-rails", ">= 3.4"
   spec.add_development_dependency "sqlite3", ">= 1"
   spec.add_development_dependency "standard", "~> 1.52"
@@ -63,4 +64,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "standard-performance", "~> 1.8"
   spec.add_development_dependency "standard-rails", "~> 1.5"
   spec.add_development_dependency "standard-rspec", "~> 0.3"
+  spec.add_development_dependency "rbs", "~> 3"
 end

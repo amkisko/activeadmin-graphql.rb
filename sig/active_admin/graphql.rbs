@@ -1,0 +1,7 @@
+module ActiveAdmin
+  module GraphQL
+    VERSION: String
+
+    def self.load!: () -> void
+  end
+end

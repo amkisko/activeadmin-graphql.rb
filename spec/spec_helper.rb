@@ -1,11 +1,18 @@
 # frozen_string_literal: true
 
-if ENV["COVERAGE"] == "true"
-  require "simplecov"
-  SimpleCov.start do
-    add_filter "/spec/"
-    track_files "lib/**/*.rb"
-  end
+polyrun_cov_measure =
+  ENV["POLYRUN_COVERAGE_DISABLE"] != "1" &&
+  %w[1 true yes].include?(ENV["POLYRUN_COVERAGE"]&.to_s&.downcase)
+
+if polyrun_cov_measure
+  require "coverage"
+  branch = %w[1 true yes].include?(ENV["POLYRUN_COVERAGE_BRANCHES"]&.to_s&.downcase)
+  ::Coverage.start(lines: true, branches: branch)
+end
+
+if polyrun_cov_measure
+  require "polyrun/coverage/rails"
+  Polyrun::Coverage::Rails.start!(root: File.expand_path("..", __dir__))
 end
 
 Encoding.default_external = Encoding::UTF_8
@@ -19,3 +26,5 @@ RSpec.configure do |config|
   config.order = :random
   config.example_status_persistence_file_path = ".rspec_failures"
 end
+require "polyrun/rspec"
+Polyrun::RSpec.install_failure_fragments!

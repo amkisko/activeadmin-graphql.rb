@@ -9,6 +9,11 @@ appraise "rails8ruby34" do
   gem "rails", "~> 8.1"
 end
 
+appraise "rails8ruby4" do
+  ruby ">= 4.0.0"
+  gem "rails", "~> 8.1"
+end
+
 appraise "rails8truffleruby" do
   ruby ">= 3.2.0"
   gem "rails", "~> 8.1"
