@@ -6,6 +6,37 @@ on:
     branches: [main]
 
 jobs:
+  quality:
+    runs-on: ubuntu-latest
+    env:
+      BUNDLE_GEMFILE: ${{ github.workspace }}/gemfiles/rails8ruby34.gemfile
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.4"
+          bundler-cache: true
+
+      - name: Run lint
+        run: make lint
+
+  advisory:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Scan lockfiles for advisories
+        uses: google/osv-scanner-action@v2
+        with:
+          scan-args: |-
+            --lockfile=Gemfile.lock
+            --lockfile=gemfiles/rails72.gemfile.lock
+            --lockfile=gemfiles/rails8ruby34.gemfile.lock
+            --lockfile=gemfiles/rails8ruby4.gemfile.lock
+            --lockfile=gemfiles/rails8truffleruby.gemfile.lock
+
   test:
     runs-on: ubuntu-latest
 
