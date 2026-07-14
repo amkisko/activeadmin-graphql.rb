@@ -101,8 +101,11 @@ module ActiveAdmin
 
           type_class.field :activeadmin_policies, policy_set_type, null: false, camelize: false, authorize: false
           type_class.define_method(:activeadmin_policies) do
-            builder = context[:namespace] && ActiveAdmin::GraphQL::SchemaBuilder.new(context[:namespace])
-            builder.send(:build_policy_set, auth: context[:auth], subject_owner: aa_res, subject: object, context: context)
+            ActiveAdmin::GraphQL::PolicySetCache.fetch(
+              context,
+              subject_owner: aa_res,
+              subject: object
+            )
           end
 
           if (ext = aa_res.graphql_config.extension_block)

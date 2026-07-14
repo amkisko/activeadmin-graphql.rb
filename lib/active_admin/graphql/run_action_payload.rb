@@ -21,7 +21,8 @@ module ActiveAdmin
       field :body, ::GraphQL::Types::String, null: true,
         description: "Response body text when the action rendered (e.g. JSON)."
 
-      Result = Struct.new(:ok, :status, :location, :body, keyword_init: true)
+      # keyword_init required for Ruby 3.2 consumers; cop targets 3.4 default Struct behavior
+      Result = Struct.new(:ok, :status, :location, :body, keyword_init: true) # rubocop:disable Style/RedundantStructKeywordInit
     end
   end
 end

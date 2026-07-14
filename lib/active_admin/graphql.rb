@@ -14,6 +14,7 @@ module ActiveAdmin
   #
   module GraphQL
     SCHEMA_CACHE = {}
+    SCHEMA_CACHE_MUTEX = Mutex.new
   end
 end
 
@@ -41,7 +42,12 @@ module ActiveAdmin
       # when admin registrations change without a full unload.
       def schema_for(namespace)
         cache_key = namespace.name
-        SCHEMA_CACHE[cache_key] ||= SchemaBuilder.new(namespace).build
+        cached = SCHEMA_CACHE[cache_key]
+        return cached if cached
+
+        SCHEMA_CACHE_MUTEX.synchronize do
+          SCHEMA_CACHE[cache_key] ||= SchemaBuilder.new(namespace).build
+        end
       end
 
       def clear_schema_cache!
@@ -70,6 +76,7 @@ module ActiveAdmin
           graphql/run_action_mutation_config
           graphql/run_action_mutation_dsl
           graphql/key_value_pair_input
+          graphql/policy_set_cache
           graphql/schema_builder
         ].each { |path| require_relative path }
       end

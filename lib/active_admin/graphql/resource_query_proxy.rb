@@ -27,6 +27,26 @@ module ActiveAdmin
       def find_member(id)
         extra = member_route_params_for_find(id)
         controller_for("show", extra).send(:find_resource)
+      rescue ActiveRecord::RecordNotFound
+        nil
+      end
+
+      def find_members(ids)
+        string_ids = Array(ids).map(&:to_s).uniq
+        return {} if string_ids.empty?
+
+        model = @aa_resource.resource_class
+        if ActiveAdmin::PrimaryKey.composite?(model)
+          return string_ids.index_with { |identifier| find_member(identifier) }
+        end
+
+        controller = controller_for("index")
+        relation = controller.send(:apply_authorization_scope, controller.send(:scoped_collection))
+        primary_key = model.primary_key.to_sym
+        indexed = relation.where(primary_key => string_ids).index_by do |record|
+          record.public_send(primary_key).to_s
+        end
+        string_ids.index_with { |identifier| indexed[identifier] }
       end
 
       def build_new(attributes)

@@ -48,17 +48,24 @@ module ActiveAdmin
             end
 
             define_method(:activeadmin_policies) do
-              auth = context[:auth]
               resources = builder.send(:active_resources).map do |aa_res|
                 {
                   type_name: builder.send(:graphql_type_name_for, aa_res),
-                  activeadmin_policies: builder.send(:build_policy_set, auth: auth, subject_owner: aa_res, subject: aa_res.resource_class, context: context)
+                  activeadmin_policies: ActiveAdmin::GraphQL::PolicySetCache.fetch(
+                    context,
+                    subject_owner: aa_res,
+                    subject: aa_res.resource_class
+                  )
                 }
               end
               pages = ns.resources.select { |r| r.is_a?(ActiveAdmin::Page) }.map do |page|
                 {
                   name: page.name,
-                  activeadmin_policies: builder.send(:build_policy_set, auth: auth, subject_owner: page, subject: page, context: context)
+                  activeadmin_policies: ActiveAdmin::GraphQL::PolicySetCache.fetch(
+                    context,
+                    subject_owner: page,
+                    subject: page
+                  )
                 }
               end
               {resources: resources, pages: pages}
@@ -75,13 +82,18 @@ module ActiveAdmin
                 graph_params: KeyValuePairs.to_hash(path)
               )
 
+              records_by_id = proxy.find_members(ids.map(&:to_s))
               ids.map do |id|
-                record = proxy.find_member(id.to_s)
+                record = records_by_id[id.to_s]
                 raise ::GraphQL::ExecutionError, "not found" unless record
 
                 {
                   id: id.to_s,
-                  activeadmin_policies: builder.send(:build_policy_set, auth: context[:auth], subject_owner: aa_res, subject: record, context: context)
+                  activeadmin_policies: ActiveAdmin::GraphQL::PolicySetCache.fetch(
+                    context,
+                    subject_owner: aa_res,
+                    subject: record
+                  )
                 }
               end
             end

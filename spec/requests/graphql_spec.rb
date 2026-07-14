@@ -592,6 +592,75 @@ RSpec.describe "ActiveAdmin GraphQL", type: :request do
       expect(row.fetch("id")).to eq(post.id.to_s)
       expect(row.dig("activeadmin_policies", "allowed_actions")).to include("read")
     end
+
+    it "returns preflight policies for multiple ids" do
+      first = Post.create!(title: "Policy batch one", body: "a")
+      second = Post.create!(title: "Policy batch two", body: "b")
+      data = gql!(<<~GQL)
+        {
+          activeadmin_policies_for(type_name: "Post", ids: ["#{first.id}", "#{second.id}"]) {
+            id
+            activeadmin_policies {
+              allowed_actions
+            }
+          }
+        }
+      GQL
+
+      expect(response).to have_http_status(:ok)
+      expect(data["errors"]).to be_nil
+      rows = data.dig("data", "activeadmin_policies_for")
+      expect(rows.map { |row| row.fetch("id") }).to contain_exactly(first.id.to_s, second.id.to_s)
+      expect(rows.all? { |row| row.dig("activeadmin_policies", "allowed_actions").include?("read") }).to be(true)
+    end
+  end
+
+  describe "trust boundaries" do
+    it "returns null for a missing member id" do
+      data = gql!(<<~GQL)
+        {
+          post(id: "9999999") {
+            id
+            title
+          }
+        }
+      GQL
+
+      expect(response).to have_http_status(:ok)
+      expect(data["errors"]).to be_nil
+      expect(data.dig("data", "post")).to be_nil
+    end
+
+    it "returns not found for update on a missing record" do
+      data = gql!(<<~GQL)
+        mutation {
+          update_post(where: { id: "9999999" }, input: { title: "Missing" }) {
+            id
+          }
+        }
+      GQL
+
+      expect(response).to have_http_status(:ok)
+      expect(data.dig("errors", 0, "message")).to eq("not found")
+    end
+
+    it "returns 400 for an invalid JSON request body" do
+      post "/admin/graphql",
+        params: "{not-json",
+        headers: {"CONTENT_TYPE" => "application/json"}
+
+      expect(response).to have_http_status(:bad_request)
+      expect(JSON.parse(response.body).dig("errors", 0, "message")).to eq("Invalid JSON")
+    end
+
+    it "returns 400 for invalid JSON variables" do
+      post "/admin/graphql",
+        params: {query: "{ posts(first: 1) { edges { node { id } } } }", variables: "{"},
+        as: :json
+
+      expect(response).to have_http_status(:bad_request)
+      expect(JSON.parse(response.body).dig("errors", 0, "message")).to eq("Invalid JSON")
+    end
   end
 
   context "when the namespace requires Devise authentication" do
@@ -1048,6 +1117,67 @@ RSpec.describe "ActiveAdmin GraphQL", type: :request do
       rec = Post.find_by(title: "Nested create")
       expect(rec).to be_present
       expect(rec.author_id).to eq(u.id)
+    end
+
+    it "resolves the author association when read access is allowed" do
+      user = User.create!(first_name: "Visible", last_name: "Author")
+      Post.create!(title: "With author", body: "a", author: user)
+
+      data = gql!(<<~GQL)
+        {
+          posts(first: 10) {
+            edges {
+              node {
+                title
+                author {
+                  id
+                }
+              }
+            }
+          }
+        }
+      GQL
+
+      expect(response).to have_http_status(:ok)
+      expect(data["errors"]).to be_nil
+      row = data.dig("data", "posts", "edges").find { |edge| edge.dig("node", "title") == "With author" }
+      expect(row.dig("node", "author", "id")).to eq(user.id.to_s)
+    end
+
+    context "when read access to the parent association is denied" do
+      around do |example|
+        ns = ActiveAdmin.application.namespaces[:admin]
+        previous = ns.authorization_adapter
+        ns.authorization_adapter = ActiveAdmin::GraphQLSpecSupport::DenyUserReadAuthorizationAdapter
+        example.run
+      ensure
+        ns.authorization_adapter = previous
+      end
+
+      it "returns null for the nested author field" do
+        user = User.create!(first_name: "Hidden", last_name: "Author")
+        Post.create!(title: "Hidden author", body: "a", author: user)
+
+        data = gql!(<<~GQL)
+          {
+            posts(first: 10) {
+              edges {
+                node {
+                  title
+                  author {
+                    id
+                  }
+                }
+              }
+            }
+          }
+        GQL
+
+        expect(response).to have_http_status(:ok)
+        expect(data["errors"]).to be_nil
+        row = data.dig("data", "posts", "edges").find { |edge| edge.dig("node", "title") == "Hidden author" }
+        expect(row.dig("node", "author")).to be_nil
+      end
     end
   end
 
@@ -1555,6 +1685,47 @@ RSpec.describe "ActiveAdmin GraphQL", type: :request do
       expect(response).to have_http_status(:ok)
       expect(data["errors"]).to be_nil
       expect(data.dig("data", "registered_resource", "label")).to eq("Vol")
+    end
+  end
+
+  context "graphql query limits" do
+    around do |example|
+      namespace = ActiveAdmin.application.namespaces[:admin]
+      previous_depth = namespace.graphql_max_depth
+      previous_complexity = namespace.graphql_max_complexity
+      begin
+        example.run
+      ensure
+        namespace.graphql_max_depth = previous_depth
+        namespace.graphql_max_complexity = previous_complexity
+        ActiveAdmin::GraphQL.clear_schema_cache!
+      end
+    end
+
+    it "rejects queries that exceed graphql_max_depth" do
+      namespace = ActiveAdmin.application.namespaces[:admin]
+      namespace.graphql_max_depth = 3
+      ActiveAdmin::GraphQL.clear_schema_cache!
+
+      data = gql!(<<~GQL)
+        { posts(first: 1) { edges { node { id } } } }
+      GQL
+
+      expect(data["errors"]).to be_an(Array)
+      expect(data["errors"].first.fetch("message")).to match(/depth/i)
+    end
+
+    it "rejects queries that exceed graphql_max_complexity" do
+      namespace = ActiveAdmin.application.namespaces[:admin]
+      namespace.graphql_max_complexity = 1
+      ActiveAdmin::GraphQL.clear_schema_cache!
+
+      data = gql!(<<~GQL)
+        { posts(first: 1) { edges { node { id } } } }
+      GQL
+
+      expect(data["errors"]).to be_an(Array)
+      expect(data["errors"].first.fetch("message")).to match(/complexity/i)
     end
   end
 end

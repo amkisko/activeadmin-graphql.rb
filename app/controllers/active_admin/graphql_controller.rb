@@ -9,6 +9,10 @@ module ActiveAdmin
   class GraphqlController < ApplicationController
     protect_from_forgery with: :exception
 
+    rescue_from ActionDispatch::Http::Parameters::ParseError do
+      render json: {errors: [{message: "Invalid JSON"}]}, status: :bad_request
+    end
+
     before_action :ensure_graphql_enabled!
     before_action :authenticate_graphql!
 
@@ -104,6 +108,8 @@ module ActiveAdmin
 
     def request_body_hash
       json = request_body_json
+      return nil if json.nil? || json == :invalid_json
+
       json if json.is_a?(Hash)
     end
 
@@ -119,13 +125,21 @@ module ActiveAdmin
           body.present? ? JSON.parse(body) : nil
         end
     rescue JSON::ParserError
-      @request_body_json = nil
+      @request_body_json = :invalid_json
+    end
+
+    def invalid_request_json?
+      request_body_json == :invalid_json
     end
 
     def ensure_variables(raw)
       case raw
       when String
-        raw.present? ? JSON.parse(raw) : {}
+        if raw.blank?
+          {}
+        else
+          JSON.parse(raw)
+        end
       when Hash
         raw
       when ActionController::Parameters
@@ -136,22 +150,35 @@ module ActiveAdmin
         {}
       end
     rescue JSON::ParserError
-      {}
+      :invalid_json
+    end
+
+    def render_invalid_json!
+      render json: {errors: [{message: "Invalid JSON"}]}, status: :bad_request
     end
 
     def render_multiplex(schema)
+      return render_invalid_json! if invalid_request_json?
+
       operations = multiplex_operations
       return render_multiplex_limit_error!(operations.size) if exceeds_multiplex_limit?(operations)
 
       payloads = build_multiplex_payloads(operations)
+      return if performed?
+
       results = schema.multiplex(payloads)
       render json: results.map(&:to_h), status: :ok
     end
 
     def render_single(schema)
+      return render_invalid_json! if invalid_request_json?
+
+      variables = ensure_variables(variables_hash)
+      return render_invalid_json! if variables == :invalid_json
+
       result = schema.execute(
         query: query_string,
-        variables: ensure_variables(variables_hash),
+        variables: variables,
         operation_name: operation_name,
         context: graphql_context
       )
@@ -174,11 +201,17 @@ module ActiveAdmin
 
     def build_multiplex_payloads(operations)
       context = graphql_context
-      operations.map do |op|
+      operations.map do |operation|
+        variables = ensure_variables(operation[:variables])
+        if variables == :invalid_json
+          render_invalid_json!
+          return []
+        end
+
         {
-          query: op[:query],
-          variables: ensure_variables(op[:variables]),
-          operation_name: op[:operation_name],
+          query: operation[:query],
+          variables: variables,
+          operation_name: operation[:operation_name],
           context: context
         }
       end

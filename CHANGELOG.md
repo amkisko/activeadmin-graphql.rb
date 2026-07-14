@@ -1,5 +1,16 @@
 # Changelog
 
+## Unreleased
+
+## 0.2.1 (2026-07-14)
+
+- Add RBS type signatures to the published gem for Steep and other Ruby type checkers
+- Add Ruby 4.0 to the supported compatibility matrix
+- Return HTTP 400 with a clear error when the GraphQL request body or variables contain invalid JSON
+- Return `null` for member queries when the record id does not exist
+- Enforce read authorization on `belongs_to` association fields so denied parent records resolve as `null`
+- Build GraphQL schemas safely when `schema_for` runs concurrently
+
 ## 0.2.0 (2026-04-29)
 
 - Add `activeadmin_policies` GraphQL policy surfaces:

@@ -38,6 +38,11 @@ RSpec.describe ActiveAdmin::GraphQL::ResourceQueryProxy do
       expect(proxy.find_member(post.id)).to eq(post)
     end
 
+    it "returns nil when the record does not exist" do
+      proxy = described_class.new(aa_resource: aa_res, user: nil, namespace: namespace, graph_params: {})
+      expect(proxy.find_member(9_999_999)).to be_nil
+    end
+
     context "with LibraryEdition (composite primary key)" do
       around do |example|
         with_resources_during(example) { ActiveAdmin.register(LibraryEdition) }
@@ -46,11 +51,24 @@ RSpec.describe ActiveAdmin::GraphQL::ResourceQueryProxy do
       let(:aa_res) { ActiveAdmin.application.namespaces[:admin].resource_for(LibraryEdition) }
 
       it "finds by JSON id or by primary-key param hash" do
-        ed = LibraryEdition.create!(book_code: "Q", seq: 4, label: "L")
+        edition = LibraryEdition.create!(book_code: "Q", seq: 4, label: "L")
         proxy = described_class.new(aa_resource: aa_res, user: nil, namespace: namespace, graph_params: {})
-        expect(proxy.find_member(ActiveAdmin::PrimaryKey.graphql_id_value(ed))).to eq(ed)
-        expect(proxy.find_member("book_code" => "Q", "seq" => 4)).to eq(ed)
+        expect(proxy.find_member(ActiveAdmin::PrimaryKey.graphql_id_value(edition))).to eq(edition)
+        expect(proxy.find_member("book_code" => "Q", "seq" => 4)).to eq(edition)
       end
+    end
+  end
+
+  describe "#find_members" do
+    it "loads multiple records in one scoped query" do
+      first = Post.create!(title: "Batch one", body: "a")
+      second = Post.create!(title: "Batch two", body: "b")
+      proxy = described_class.new(aa_resource: aa_res, user: nil, namespace: namespace, graph_params: {})
+
+      indexed = proxy.find_members([first.id, second.id, 9_999_999])
+      expect(indexed[first.id.to_s]).to eq(first)
+      expect(indexed[second.id.to_s]).to eq(second)
+      expect(indexed["9999999"]).to be_nil
     end
   end
 

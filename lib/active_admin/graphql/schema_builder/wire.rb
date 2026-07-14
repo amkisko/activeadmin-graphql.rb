@@ -14,6 +14,7 @@ module ActiveAdmin
             model.reflect_on_all_associations(:belongs_to).each do |ref|
               next if ref.polymorphic?
               target = ref.klass
+              target_aa_res = @aa_by_model[target]
               next unless @object_types[target]
 
               field_name = ref.name.to_sym
@@ -25,7 +26,16 @@ module ActiveAdmin
                 fk_val = object.public_send(fk)
                 next nil if fk_val.nil?
 
-                dataloader.with(ActiveAdmin::GraphQL::RecordSource, target).load(fk_val)
+                record = dataloader.with(ActiveAdmin::GraphQL::RecordSource, target).load(fk_val)
+                next nil unless record
+
+                auth = context[:auth]
+                if target_aa_res && auth &&
+                    !auth.authorized?(target_aa_res, ActiveAdmin::Authorization::READ, record)
+                  next nil
+                end
+
+                record
               end
             end
           end
