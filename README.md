@@ -38,11 +38,24 @@ rake rubocop
 rake spec
 ```
 
-Matrixed Rails versions use [Appraisal](https://github.com/thoughtbot/appraisal): `gemfiles/rails72.gemfile`, `rails8ruby34.gemfile`, and `rails8truffleruby.gemfile` pin Rails 7.2 / 8.1 (integration tests follow the `spec/dummy` app, which is tested from 7.2 upward). Run `bundle exec appraisal rspec` to execute RSpec in each gemfile context, or `bundle exec parallel_rspec spec` locally for faster multi-process runs on the current bundle.
+Matrixed Rails versions use [Appraisal](https://github.com/thoughtbot/appraisal): `gemfiles/rails72.gemfile` and `rails8ruby34.gemfile` pin Rails 7.2 / 8.1 (integration tests follow the `spec/dummy` app, which is tested from 7.2 upward). Run `bundle exec appraisal rspec` to execute RSpec in each gemfile context, or `bundle exec parallel_rspec spec` locally for faster multi-process runs on the current bundle.
 
 [Trunk](https://docs.trunk.io) config lives in `.trunk/`; CI runs `trunk` via `.github/workflows/trunk.yml`. Releases: `usr/bin/release.rb` (RuboCop, Appraisal RSpec across gemfiles, `gem build` / `gem push`, git tag, `gh release`).
 
 No local ActiveAdmin checkout is required; the dummy app depends on the published `activeadmin` gem like a normal host app.
+
+## Links
+
+- [GitHub](https://github.com/amkisko/activeadmin-graphql.rb)
+- [GitLab](https://gitlab.com/amkisko/activeadmin-graphql.rb)
+- [RubyGems](https://rubygems.org/gems/activeadmin-graphql)
+- [Versions Atom](https://rubygems.org/gems/activeadmin-graphql/versions.atom) (feed id `10803975489574`)
+- [libraries.io](https://libraries.io/rubygems/activeadmin-graphql)
+- [Deps.dev](https://deps.dev/rubygems/activeadmin-graphql)
+- [SonarCloud](https://sonarcloud.io/project/overview?id=amkisko_activeadmin-graphql.rb)
+- [Snyk](https://snyk.io/test/github/amkisko/activeadmin-graphql.rb)
+- [Codecov](https://app.codecov.io/github/amkisko/activeadmin-graphql.rb)
+- [OpenSSF Scorecard](https://scorecard.dev/viewer/?uri=github.com/amkisko/activeadmin-graphql.rb)
 
 ## License
 

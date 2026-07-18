@@ -11,7 +11,7 @@ Gem::Specification.new do |spec|
   spec.description = "Exposes ActiveAdmin resources and pages as a graphql-ruby schema with an HTTP endpoint per namespace."
   spec.license = "MIT"
   spec.platform = Gem::Platform::RUBY
-  spec.required_ruby_version = ">= 3.2"
+  spec.required_ruby_version = ">= 3.4"
 
   repository_url = "https://github.com/amkisko/activeadmin-graphql.rb"
 
