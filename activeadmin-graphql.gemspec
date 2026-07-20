@@ -49,7 +49,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "bigdecimal"
   spec.add_development_dependency "bundler", ">= 2"
   spec.add_development_dependency "devise", ">= 4.9"
-  spec.add_development_dependency "parallel_tests", "~> 4.7"
+  spec.add_development_dependency "parallel_tests", "~> 5.7"
   spec.add_development_dependency "rails", ">= 6.1"
   spec.add_development_dependency "rspec", "~> 3"
   spec.add_development_dependency "polyrun", ">= 2.2.0"
@@ -65,5 +65,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "standard-performance", "~> 1.8"
   spec.add_development_dependency "standard-rails", "~> 1.5"
   spec.add_development_dependency "standard-rspec", "~> 0.3"
-  spec.add_development_dependency "rbs", "~> 3"
+  spec.add_development_dependency "rbs", "~> 4"
 end
