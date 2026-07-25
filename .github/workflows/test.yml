@@ -8,8 +8,6 @@ on:
 jobs:
   quality:
     runs-on: ubuntu-latest
-    env:
-      BUNDLE_GEMFILE: ${{ github.workspace }}/gemfiles/rails8ruby34.gemfile
     steps:
       - uses: actions/checkout@v7
 

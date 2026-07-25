@@ -29,8 +29,6 @@
 *.local
 *.gem
 
-/gemfiles/*.lock
-
 # RSpec --only-failures / --next-failure persistence (spec/config)
 .rspec_failures
 
