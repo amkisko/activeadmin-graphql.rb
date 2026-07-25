@@ -208,7 +208,7 @@ GEM
       racc (~> 1.4)
     orm_adapter (0.5.0)
     parallel (1.27.0)
-    parallel_tests (4.10.1)
+    parallel_tests (5.7.0)
       parallel
     parser (3.3.11.1)
       ast (~> 2.4.1)
@@ -268,8 +268,9 @@ GEM
       activerecord (>= 7.2)
       activesupport (>= 7.2)
       i18n
-    rbs (3.10.4)
+    rbs (4.0.3)
       logger
+      prism (>= 1.6.0)
       tsort
     rdoc (7.2.0)
       erb
@@ -417,11 +418,11 @@ DEPENDENCIES
   bigdecimal
   bundler (>= 2)
   devise (>= 4.9)
-  parallel_tests (~> 4.7)
+  parallel_tests (~> 5.7)
   polyrun (>= 2.2.0)
   prosopite (~> 2.0)
   rails (~> 7.2)
-  rbs (~> 3)
+  rbs (~> 4)
   rspec (~> 3)
   rspec-rails (>= 6)
   rubocop-rails (~> 2.34)
@@ -507,7 +508,7 @@ CHECKSUMS
   nokogiri (1.19.2-x86_64-linux-musl) sha256=93128448e61a9383a30baef041bf1f5817e22f297a1d400521e90294445069a8
   orm_adapter (0.5.0) sha256=aa5d0be5d540cbb46d3a93e88061f4ece6a25f6e97d6a47122beb84fe595e9b9
   parallel (1.27.0) sha256=4ac151e1806b755fb4e2dc2332cbf0e54f2e24ba821ff2d3dcf86bf6dc4ae130
-  parallel_tests (4.10.1) sha256=df05458c691462b210f7a41fc2651d4e4e8a881e8190e6d1e122c92c07735d70
+  parallel_tests (5.7.0) sha256=3f1762c46ca2c223b8af8ef877217f9d76974e191bfa934f2580b58bcf1d005c
   parser (3.3.11.1) sha256=d17ace7aabe3e72c3cc94043714be27cc6f852f104d81aa284c2281aecc65d54
   polyrun (2.2.0) sha256=9545eb0b52a8c0266e94548b73f3521076c8fb3c1c126cc525297214262f228d
   pp (0.6.3) sha256=2951d514450b93ccfeb1df7d021cae0da16e0a7f95ee1e2273719669d0ab9df6
@@ -527,7 +528,7 @@ CHECKSUMS
   rainbow (3.1.1) sha256=039491aa3a89f42efa1d6dec2fc4e62ede96eb6acd95e52f1ad581182b79bc6a
   rake (13.3.1) sha256=8c9e89d09f66a26a01264e7e3480ec0607f0c497a861ef16063604b1b08eb19c
   ransack (4.4.1) sha256=6aeaac36fc19088570e10da1044e6cfd88c740e20f871b84566fd30e32b7a63d
-  rbs (3.10.4) sha256=b17d7c4be4bb31a11a3b529830f0aa206a807ca42f2e7921a3027dfc6b7e5ce8
+  rbs (4.0.3) sha256=5a7bf70e2628549d9a1f44eae447b2cfe55968a9c60cfff52693a4bdcc020e14
   rdoc (7.2.0) sha256=8650f76cd4009c3b54955eb5d7e3a075c60a57276766ebf36f9085e8c9f23192
   regexp_parser (2.11.3) sha256=ca13f381a173b7a93450e53459075c9b76a10433caadcb2f1180f2c741fc55a4
   reline (0.6.3) sha256=1198b04973565b36ec0f11542ab3f5cfeeec34823f4e54cebde90968092b1835
