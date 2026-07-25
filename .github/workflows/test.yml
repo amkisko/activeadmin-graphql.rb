@@ -25,15 +25,23 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
+      # osv-scanner only recognizes Gemfile.lock / gems.locked filenames.
+      - name: Prepare lockfiles for osv-scanner
+        run: |
+          mkdir -p .osv-scan/root
+          cp Gemfile.lock .osv-scan/root/Gemfile.lock
+          for lockfile in gemfiles/*.gemfile.lock; do
+            name=$(basename "$lockfile" .gemfile.lock)
+            mkdir -p ".osv-scan/$name"
+            cp "$lockfile" ".osv-scan/$name/Gemfile.lock"
+          done
+
       - name: Scan lockfiles for advisories
         uses: google/osv-scanner-action/osv-scanner-action@v2.3.8
         with:
           scan-args: |-
-            --lockfile=Gemfile.lock
-            --lockfile=gemfiles/rails72.gemfile.lock
-            --lockfile=gemfiles/rails8ruby34.gemfile.lock
-            --lockfile=gemfiles/rails8ruby4.gemfile.lock
-
+            --recursive
+            .osv-scan
 
   test:
     runs-on: ubuntu-latest
