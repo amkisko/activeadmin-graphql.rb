@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Add `rfcs/` starter pack: process (RFC 0001), positioning (RFC 0002), and Standards Track design RFCs 0003–0005 for HTTP endpoint, schema DSL, and authorization.
+
 ## 0.2.1 (2026-07-14)
 
 - Add RBS type signatures to the published gem for Steep and other Ruby type checkers

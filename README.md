@@ -2,6 +2,8 @@
 
 GraphQL HTTP API for [ActiveAdmin](https://activeadmin.info), built with [graphql-ruby](https://graphql-ruby.org). Register resources as usual, optionally add a `graphql do ... end` block, enable the endpoint per namespace, and get a schema with queries and mutations aligned with ActiveAdmin authorization and filters.
 
+Design changes go through `rfcs/` (RFC 0001).
+
 ## Setup
 
 ```ruby
