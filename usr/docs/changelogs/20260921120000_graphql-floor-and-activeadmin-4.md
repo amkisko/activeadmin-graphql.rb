@@ -26,6 +26,8 @@ CHANGELOG Unreleased names the graphql floor and the ActiveAdmin 4 test matrix. 
 
 Wait for a Rails release that includes rails/rails#58601 before json 3. The standard gem is no longer in the graph.
 
+Folded into unpublished 0.3.0. Tag and gem push wait on make release.
+
 ## Later pass 2026-09-21
 
 Dropped standard. Locked rubocop 1.91.0. json stayed 2.21.2 because Rails decode still uses positional JSON.parse options. See usr/docs/changelogs/20260921112800_drop-standard-rubocop-direct.md.

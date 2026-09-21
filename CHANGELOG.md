@@ -2,18 +2,17 @@
 
 ## Unreleased
 
-- Require graphql-ruby 2.6.9 or newer (parser cache Marshal fix).
-- Test ActiveAdmin 4.0.0.beta23 on Rails 8. Keep ActiveAdmin 3.5 on Rails 7.2.
-
 ## 0.3.0 (2026-09-21)
 
 - BREAKING: omit `created_at` and `updated_at` from default create and update inputs. List them on `permit_params` to keep them writable.
+- BREAKING: require graphql-ruby 2.6.9 or newer (parser cache Marshal fix).
 - Add `permit_params` on the per-resource `graphql` block, with nested `create` / `update` `permit_params` and `resolve` (RFC 0006).
 - Seed GraphQL mutation inputs from a static HTML `permit_params` list when graphql `permit_params` is unset.
 - Add `destroy_*` as an alias of `delete_*`.
 - Add `graphql_name` as an alias of `type_name`.
 - Put ActiveRecord validation messages on GraphQL error `extensions.errors` when create or update fails.
 - Log GraphQL execute with namespace, operation name, and error count.
+- Test ActiveAdmin 4.0.0.beta23 on Rails 8. Keep ActiveAdmin 3.5 on Rails 7.2.
 - Add `rfcs/` starter pack: process (RFC 0001), positioning (RFC 0002), and Standards Track design RFCs 0003–0005 for HTTP endpoint, schema DSL, and authorization.
 
 ## 0.2.1 (2026-07-14)

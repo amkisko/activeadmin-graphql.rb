@@ -16,7 +16,7 @@ Later pass 2026-09-21: CHANGELOG Unreleased names permit_params and nested creat
 
 ## Next
 
-0.3.0 metadata is cut. Downstream apps replace initializer patches with graphql permit_params and keep their introspection regression spec after the gem is tagged.
+0.3.0 metadata includes the graphql 2.6.9 floor and ActiveAdmin 4 Rails 8 matrix. Downstream apps replace initializer patches with graphql permit_params and keep their introspection regression spec after the gem is tagged.
 
 ## Source
 
