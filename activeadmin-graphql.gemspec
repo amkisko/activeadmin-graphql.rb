@@ -49,7 +49,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "bigdecimal"
   spec.add_development_dependency "bundler", ">= 2"
   spec.add_development_dependency "devise", ">= 4.9"
-  spec.add_development_dependency "json", ">= 2.21.2", "< 3"
+  spec.add_development_dependency "json", ">= 2.21.2", "< 4"
   spec.add_development_dependency "parallel_tests", "~> 5.7"
   spec.add_development_dependency "rails", ">= 6.1"
   spec.add_development_dependency "rspec", "~> 3"
