@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Add `permit_params` on the per-resource `graphql` block, with nested `create` / `update` `permit_params` and `resolve`, so create and update inputs can omit columns that stay readable on queries (RFC 0006).
+- Omit `created_at` and `updated_at` from default create and update inputs; seed those inputs from a static HTML `permit_params` list when graphql `permit_params` is unset.
+- Add `destroy_*` as an alias of `delete_*`, and `graphql_name` as an alias of `type_name`.
 - Add `rfcs/` starter pack: process (RFC 0001), positioning (RFC 0002), and Standards Track design RFCs 0003–0005 for HTTP endpoint, schema DSL, and authorization.
 
 ## 0.2.1 (2026-07-14)

@@ -6,10 +6,16 @@ module ActiveAdmin
       module TypesInputs
         private
 
-        def define_input_assignable_arguments!(input_class, aa_res, required:)
+        def mark_empty_input_object!(input_class)
+          return if input_class.any_arguments?
+
+          input_class.has_no_arguments(true)
+        end
+
+        def define_input_assignable_arguments!(input_class, aa_res, required:, attribute_names:)
           model = aa_res.resource_class
           cols_by_name = model.columns.index_by(&:name)
-          gassign = aa_res.graphql_assignable_attribute_names.map(&:to_s)
+          gassign = attribute_names.map(&:to_s)
           if (btc = aa_res.belongs_to_config)
             gassign -= [btc.to_param.to_s]
           end
@@ -33,12 +39,19 @@ module ActiveAdmin
             graphql_name "#{gname}CreateInput"
             description "Attributes (and nested route params) for creating #{model.name}"
 
-            builder.send(:define_input_assignable_arguments!, self, aa_res, required: false)
+            builder.send(
+              :define_input_assignable_arguments!,
+              self,
+              aa_res,
+              required: false,
+              attribute_names: aa_res.graphql_create_attribute_names
+            )
 
             if btc
               argument btc.to_param.to_sym, ::GraphQL::Types::ID, required: btc.required?, camelize: false
             end
           end
+          mark_empty_input_object!(klass)
           attach_input_object_visibility!(klass, "#{gname}CreateInput", aa_res, :create_input)
           klass
         end
@@ -53,12 +66,19 @@ module ActiveAdmin
             graphql_name "#{gname}UpdateInput"
             description "Partial attributes (and nested route params) for updating #{model.name}"
 
-            builder.send(:define_input_assignable_arguments!, self, aa_res, required: false)
+            builder.send(
+              :define_input_assignable_arguments!,
+              self,
+              aa_res,
+              required: false,
+              attribute_names: aa_res.graphql_update_attribute_names
+            )
 
             if btc
               argument btc.to_param.to_sym, ::GraphQL::Types::ID, required: false, camelize: false
             end
           end
+          mark_empty_input_object!(klass)
           attach_input_object_visibility!(klass, "#{gname}UpdateInput", aa_res, :update_input)
           klass
         end

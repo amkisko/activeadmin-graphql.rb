@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "resource_definition_dsl"
+require_relative "resource_methods"
 
 module ActiveAdmin
   module GraphQL
@@ -60,36 +61,34 @@ module ActiveAdmin
         end
       end
 
-      module ResourceMethods
-        def graphql_config
-          @graphql_config ||= ActiveAdmin::GraphQL::ResourceConfig.new
-        end
-
-        def attributes_for_graphql
-          keys = resource_attributes.keys
-          cfg = graphql_config
-          if cfg.only_attributes
-            keys &= cfg.only_attributes
-          end
-          keys -= cfg.exclude_attributes
-          keys
-        end
-
-        def graphql_assignable_attribute_names
-          names = attributes_for_graphql.map(&:to_s)
-          pk_cols = ActiveAdmin::PrimaryKey.columns(resource_class)
-          return names if pk_cols.size > 1
-
-          names - pk_cols
-        end
-      end
-
       module ResourceDSLMethods
         def graphql(&block)
           if block
             ActiveAdmin::GraphQL::ResourceDefinitionDSL.new(config.graphql_config).instance_exec(&block)
           end
           config.graphql_config
+        end
+
+        def permit_params(*args, &block)
+          unless block
+            config.graphql_config.html_permit_params_attributes = flatten_html_permit_params(args)
+          end
+          super
+        end
+
+        private
+
+        def flatten_html_permit_params(args)
+          args.flat_map do |arg|
+            case arg
+            when Symbol, String
+              [arg.to_sym]
+            when Hash
+              arg.keys.map(&:to_sym)
+            else
+              []
+            end
+          end
         end
       end
 

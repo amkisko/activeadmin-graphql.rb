@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "run_action_mutation_config"
+require_relative "mutation_input_config"
 
 module ActiveAdmin
   module GraphQL
@@ -10,14 +11,16 @@ module ActiveAdmin
       attr_accessor :graphql_type_name
       attr_accessor :only_attributes
       attr_accessor :exclude_attributes
+      attr_accessor :permit_params_attributes
+      attr_accessor :html_permit_params_attributes
       attr_accessor :extension_block
 
       # Optional resolver overrides (set from +graphql do+). SchemaBuilder still owns field names,
       # arguments, and types; procs replace only the Ruby resolution body.
       attr_accessor :resolve_index_proc
       attr_accessor :resolve_show_proc
-      attr_accessor :resolve_create_proc
-      attr_accessor :resolve_update_proc
+      attr_writer :resolve_create_proc
+      attr_writer :resolve_update_proc
       attr_accessor :resolve_destroy_proc
 
       # Default return type for run-action mutations (+batch+, +member+, +collection+) when a kind-specific
@@ -31,6 +34,22 @@ module ActiveAdmin
 
       def disabled?
         !enabled
+      end
+
+      def create_input
+        @create_input ||= MutationInputConfig.new
+      end
+
+      def update_input
+        @update_input ||= MutationInputConfig.new
+      end
+
+      def resolve_create_proc
+        @resolve_create_proc || create_input.resolve_proc
+      end
+
+      def resolve_update_proc
+        @resolve_update_proc || update_input.resolve_proc
       end
 
       def batch_run_action

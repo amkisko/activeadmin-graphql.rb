@@ -2,6 +2,7 @@
 
 require_relative "run_action_mutation_config"
 require_relative "run_action_mutation_dsl"
+require_relative "mutation_input_definition_dsl"
 
 module ActiveAdmin
   module GraphQL
@@ -18,6 +19,7 @@ module ActiveAdmin
       def type_name(name)
         @config.graphql_type_name = name.to_s
       end
+      alias_method :graphql_name, :type_name
 
       def only(*attrs)
         @config.only_attributes = attrs.flatten.map(&:to_sym)
@@ -27,6 +29,23 @@ module ActiveAdmin
         @config.exclude_attributes.concat(attrs.flatten.map(&:to_sym))
       end
       alias_method :exclude, :except
+
+      def permit_params(*attrs)
+        @config.permit_params_attributes = attrs.flatten.map(&:to_sym)
+      end
+      alias_method :permit, :permit_params
+
+      def create(&block)
+        return unless block
+
+        MutationInputDefinitionDSL.new(@config.create_input).instance_exec(&block)
+      end
+
+      def update(&block)
+        return unless block
+
+        MutationInputDefinitionDSL.new(@config.update_input).instance_exec(&block)
+      end
 
       def configure(&block)
         @config.extension_block = block

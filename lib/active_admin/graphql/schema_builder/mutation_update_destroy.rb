@@ -42,7 +42,11 @@ module ActiveAdmin
                 raise ::GraphQL::ExecutionError, "not authorized to update this record"
               end
 
-              attrs = sb.assignable_slice_from_input(aa_res, input)
+              attrs = sb.assignable_slice_from_input(
+                aa_res,
+                input,
+                attribute_names: aa_res.graphql_update_attribute_names
+              )
               record = if (hook = aa_res.graphql_config.resolve_update_proc)
                 hook.call(
                   proxy: proxy,
@@ -54,9 +58,9 @@ module ActiveAdmin
                   aa_resource: aa_res
                 )
               else
-                attrs = attrs.stringify_keys.slice(*aa_res.graphql_assignable_attribute_names)
+                attrs = attrs.stringify_keys.slice(*aa_res.graphql_update_attribute_names)
                 unless record.update(attrs)
-                  raise ::GraphQL::ExecutionError, record.errors.full_messages.to_sentence
+                  raise MutationExecutionError.validation(record)
                 end
                 record
               end
@@ -66,17 +70,22 @@ module ActiveAdmin
         end
 
         def mutation_destroy_field(sb, ns, aa_res, model)
-          fname = "delete_#{aa_res.resource_name.route_key.singularize.tr("-", "_")}"
+          stem = aa_res.resource_name.route_key.singularize.tr("-", "_")
+          delete_name = "delete_#{stem}"
+          destroy_name = "destroy_#{stem}"
           find_type = @find_input_types[model]
+          type_basename = sb.send(:graphql_type_name_for, aa_res)
 
           proc do
-            field fname.to_sym, ::GraphQL::Types::Boolean, null: false, camelize: false,
-              visibility: {kind: :mutation_delete, graphql_type_name: sb.send(:graphql_type_name_for, aa_res), resource: aa_res},
-              description: "Delete #{model.name}" do
-              argument :where, find_type, required: true, camelize: false
+            [delete_name, destroy_name].each do |fname|
+              field fname.to_sym, ::GraphQL::Types::Boolean, null: false, camelize: false,
+                visibility: {kind: :mutation_delete, graphql_type_name: type_basename, resource: aa_res},
+                description: "Destroy #{model.name}" do
+                argument :where, find_type, required: true, camelize: false
+              end
             end
 
-            define_method(fname.to_sym) do |where:, **|
+            define_method(delete_name.to_sym) do |where:, **|
               auth = context[:auth]
               blob = where.to_h.stringify_keys
               graph = sb.graph_params_from_find_blob(aa_res, blob)
@@ -112,6 +121,7 @@ module ActiveAdmin
               end
               true
             end
+            alias_method destroy_name.to_sym, delete_name.to_sym
           end
         end
       end

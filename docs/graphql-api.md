@@ -214,9 +214,12 @@ The `Mutation` type is present when at least one operation exists: per-resource
 resource defines the corresponding batch, member, or collection actions.
 
 Object type names default to the model name (for example `Post`). Typed input
-objects mirror `attributes_for_graphql` (see the per-resource section below):
+objects use assignable columns (see the per-resource section below):
 `PostCreateInput`, `PostUpdateInput`, `PostListFilterInput`, and `PostWhereInput`
-when the GraphQL name is `Post`.
+when the GraphQL name is `Post`. `only` / `except` cap both object fields and
+mutation keys. `permit_params` and nested `create` / `update` blocks narrow
+create and update inputs without hiding query fields. Default mutation inputs
+omit `created_at` and `updated_at`.
 
 ### Composite primary keys (Rails 7.1+)
 
@@ -270,9 +273,11 @@ These align with REST index parameters where possible:
 Typical names for a `Post` resource:
 
 * `create_post(input: PostCreateInput!)` — attribute fields match assignable
-  columns (and the nested parent param when `belongs_to` is configured).
+  columns minus `created_at` / `updated_at` unless listed in `permit_params`
+  (and the nested parent param when `belongs_to` is configured).
 * `update_post(where: PostWhereInput!, input: PostUpdateInput!)`
-* `delete_post(where: PostWhereInput!)`
+* `delete_post(where: PostWhereInput!)` — kept for existing clients.
+* `destroy_post(where: PostWhereInput!)` — Rails / ActiveAdmin action name; same resolver as `delete_post`.
 
 Nested resources require the parent id on `where`, `input`, or list `filter`
 when the association is required.
@@ -339,9 +344,16 @@ Inside `ActiveAdmin.register` you can narrow the GraphQL surface:
 ActiveAdmin.register Post do
   graphql do
     disable!                          # omit this resource from the schema
-    type_name "BlogPost"              # GraphQL object / mutation type basename
-    only :title, :body, :published_at # expose only these attributes
+    type_name "BlogPost"              # GraphQL object / mutation type basename (`graphql_name` alias)
+    only :title, :body, :published_at # expose only these attributes on queries
     exclude :internal_score           # or `except` / `exclude`
+    permit_params :title, :body       # create and update inputs (query fields stay)
+    create do
+      permit_params :title, :body     # replace the shared list for create
+    end
+    update do
+      permit_params :title            # replace the shared list for update
+    end
     configure do
       # graphql-ruby field DSL on the object type class
       field :computed, GraphQL::Types::String, null: true
@@ -352,10 +364,21 @@ end
 ```
 
 * `disable!` — resource is not included in Query or Mutation.
-* `type_name` — overrides the default GraphQL type name derived from the model
-  (object types, mutations, and Rails enum GraphQL types use this basename).
-* `only` / `except` (or `exclude`) — restrict columns on object types and
-  assignable mutation keys (the primary key remains readable as `id`).
+* `type_name` (or `graphql_name`) — overrides the default GraphQL type name
+  derived from the model (object types, mutations, and Rails enum GraphQL
+  types use this basename).
+* `only` / `except` (or `exclude`) — restrict columns on object types. These
+  names also cap mutation inputs. This is not ActiveAdmin `only:` / `except:`
+  for controller actions (`action_item only: :show`). The primary key remains
+  readable as `id`.
+* `permit_params` (or `permit`) — restrict create and update input keys without
+  hiding query fields, same name as ActiveAdmin HTML `permit_params`. Nested
+  `create` / `update` blocks replace that shared list for one operation and
+  may set `resolve`. Names outside `only` / `except` are dropped. A static HTML
+  `permit_params :title, :body` list seeds GraphQL when the graphql list is
+  unset. A request-time HTML `permit_params` block is not copied. With no list
+  set, mutation inputs omit `created_at` and `updated_at`. Empty `permit_params`
+  yields an input with no column arguments.
 * `configure` — `field` and resolver methods are evaluated on the generated
   object type class.
 

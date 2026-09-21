@@ -103,7 +103,7 @@ RSpec.describe "ActiveAdmin GraphQL", type: :request do
       expect(q_names).to include("posts", "post", "registered_resource", "activeadmin_policies")
 
       m_names = d.fetch("mutationFields").fetch("fields").map { |f| f.fetch("name") }
-      expect(m_names).to include("create_post", "update_post", "delete_post")
+      expect(m_names).to include("create_post", "update_post", "delete_post", "destroy_post")
       expect(m_names.any? { |n| n.end_with?("_batch_action") }).to be(true)
 
       post_t = d.fetch("postObject")
@@ -195,6 +195,7 @@ RSpec.describe "ActiveAdmin GraphQL", type: :request do
         "create_post",
         "update_post",
         "delete_post",
+        "destroy_post",
         "posts_batch_action",
         "posts_member_action",
         "posts_member_append_title_bang",

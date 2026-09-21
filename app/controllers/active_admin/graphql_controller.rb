@@ -167,6 +167,7 @@ module ActiveAdmin
       return if performed?
 
       results = schema.multiplex(payloads)
+      log_graphql_result(operation_name: "multiplex", error_count: results.count { |result| Array(result.to_h["errors"]).any? })
       render json: results.map(&:to_h), status: :ok
     end
 
@@ -182,6 +183,7 @@ module ActiveAdmin
         operation_name: operation_name,
         context: graphql_context
       )
+      log_graphql_result(operation_name: operation_name, error_count: Array(result.to_h["errors"]).size)
       render json: result.to_h, status: :ok
     end
 
@@ -215,6 +217,13 @@ module ActiveAdmin
           context: context
         }
       end
+    end
+
+    def log_graphql_result(operation_name:, error_count:)
+      Rails.logger.info(
+        "[activeadmin-graphql] namespace=#{active_admin_namespace.name} " \
+        "operation=#{operation_name.presence || "anonymous"} error_count=#{error_count}"
+      )
     end
   end
 end

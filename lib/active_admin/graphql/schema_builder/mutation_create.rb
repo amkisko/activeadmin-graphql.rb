@@ -29,7 +29,11 @@ module ActiveAdmin
                 namespace: ns,
                 graph_params: sb.graph_params_from_input(aa_res, input)
               )
-              attrs = sb.assignable_slice_from_input(aa_res, input)
+              attrs = sb.assignable_slice_from_input(
+                aa_res,
+                input,
+                attribute_names: aa_res.graphql_create_attribute_names
+              )
               record = if (hook = aa_res.graphql_config.resolve_create_proc)
                 hook.call(
                   proxy: proxy,
@@ -46,7 +50,7 @@ module ActiveAdmin
                 end
 
                 unless r.save
-                  raise ::GraphQL::ExecutionError, r.errors.full_messages.to_sentence
+                  raise MutationExecutionError.validation(r)
                 end
                 r
               end

@@ -28,9 +28,9 @@ module ActiveAdmin
           h
         end
 
-        def assignable_slice_from_input(aa_res, input)
+        def assignable_slice_from_input(aa_res, input, attribute_names: nil)
           blob = input.to_h.stringify_keys
-          names = aa_res.graphql_assignable_attribute_names.map(&:to_s)
+          names = (attribute_names || aa_res.graphql_assignable_attribute_names).map(&:to_s)
           if (btc = aa_res.belongs_to_config)
             names -= [btc.to_param.to_s]
           end
