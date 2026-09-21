@@ -3,7 +3,7 @@ inherit_mode:
     - Exclude
 
 require:
-  - standard
+  - ./rubocop/cop/metrics/file_length.rb
 
 plugins:
   - standard-custom
@@ -13,8 +13,10 @@ plugins:
   - rubocop-rspec
   - rubocop-thread_safety
 
+inherit_from:
+  - .rubocop/standard.yml
+
 inherit_gem:
-  standard: config/base.yml
   standard-performance: config/base.yml
   standard-custom: config/base.yml
   standard-rails: config/base.yml
@@ -125,6 +127,13 @@ Rails/UniqBeforePluck:
   Enabled: true
   Exclude: []
 
+# Physical file lines, including blanks and comments. Class and module length
+# stay folded with CountAsOne. Preferred file size 150 (info), class and module
+# 200, file alert 300 (error). Info does not fail the run; error does.
+Metrics/FileLength:
+  Enabled: true
+  WarnMax: 150
+  Max: 300
 Metrics/ModuleLength:
   Enabled: true
   CountAsOne: [array, hash, heredoc, method_call]

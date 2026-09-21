@@ -24,9 +24,8 @@ RSpec.describe ActiveAdmin::GraphQL do
   it "returns one schema instance when schema_for runs concurrently" do
     schemas = Queue.new
     threads = Array.new(8) do
-      # rubocop:disable ThreadSafety/NewThread -- intentional contention check for SCHEMA_CACHE_MUTEX
+      # rubocop:disable-next ThreadSafety/NewThread -- intentional contention check for SCHEMA_CACHE_MUTEX
       Thread.new { schemas << described_class.schema_for(namespace) }
-      # rubocop:enable ThreadSafety/NewThread
     end
     threads.each(&:join)
 

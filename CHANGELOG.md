@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Require graphql-ruby 2.6.9 or newer (parser cache Marshal fix).
+- Test ActiveAdmin 4.0.0.beta23 on Rails 8. Keep ActiveAdmin 3.5 on Rails 7.2.
+
 ## 0.3.0 (2026-09-21)
 
 - BREAKING: omit `created_at` and `updated_at` from default create and update inputs. List them on `permit_params` to keep them writable.

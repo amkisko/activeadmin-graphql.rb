@@ -1,3 +1,4 @@
+# rubocop:disable Metrics/FileLength -- request contract matrix; split in a later pass
 # frozen_string_literal: true
 
 require_relative "../rails_helper"
@@ -1730,3 +1731,4 @@ RSpec.describe "ActiveAdmin GraphQL", type: :request do
     end
   end
 end
+# rubocop:enable Metrics/FileLength

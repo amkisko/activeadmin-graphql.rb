@@ -8,9 +8,11 @@ Design changes go through `rfcs/` (RFC 0001).
 
 ```ruby
 # Gemfile (graphql-ruby is pulled in by activeadmin-graphql)
-gem "activeadmin"
+gem "activeadmin" # 3.5, or pin 4.0.0.beta23
 gem "activeadmin-graphql"
 ```
+
+ActiveAdmin 4.0 is still a prerelease. Pin it explicitly, for example `gem "activeadmin", "4.0.0.beta23"`. Bundler will not select a prerelease from this gem's `>= 3.2` floor. graphql-ruby must be 2.6.9 or newer.
 
 ```ruby
 # config/initializers/active_admin.rb
@@ -40,7 +42,7 @@ rake rubocop
 rake spec
 ```
 
-Matrixed Rails versions use [Appraisal](https://github.com/thoughtbot/appraisal): `gemfiles/rails72.gemfile` and `rails8ruby34.gemfile` pin Rails 7.2 / 8.1 (integration tests follow the `spec/dummy` app, which is tested from 7.2 upward). Run `bundle exec appraisal rspec` to execute RSpec in each gemfile context, or `bundle exec parallel_rspec spec` locally for faster multi-process runs on the current bundle.
+Matrixed Rails versions use [Appraisal](https://github.com/thoughtbot/appraisal): `gemfiles/rails72.gemfile` pins Rails 7.2 with ActiveAdmin 3.5; `rails8ruby34.gemfile` and `rails8ruby4.gemfile` pin Rails 8.1 with ActiveAdmin 4.0.0.beta23 (integration tests follow the `spec/dummy` app). Run `bundle exec appraisal rspec` to execute RSpec in each gemfile context, or `bundle exec parallel_rspec spec` locally for faster multi-process runs on the current bundle.
 
 [Trunk](https://docs.trunk.io) config lives in `.trunk/`; CI runs `trunk` via `.github/workflows/trunk.yml`. Releases: `usr/bin/release.rb` (RuboCop, Appraisal RSpec across gemfiles, `gem build` / `gem push`, git tag, `gh release`).
 

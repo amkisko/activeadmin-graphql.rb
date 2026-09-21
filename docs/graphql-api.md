@@ -10,9 +10,11 @@ Add the extension to your application (it pulls in `activeadmin` and `graphql` a
 
 ```ruby
 # Gemfile
-gem "activeadmin"
+gem "activeadmin" # 3.5, or pin 4.0.0.beta23
 gem "activeadmin-graphql"
 ```
+
+ActiveAdmin 4.0 is still a prerelease. Pin it in the host Gemfile (`gem "activeadmin", "4.0.0.beta23"`). Bundler will not pick a prerelease from this gem's `>= 3.2` floor. graphql-ruby must be 2.6.9 or newer.
 
 Bundling loads `activeadmin/graphql`, which installs the Router/Resource integration and calls `ActiveAdmin::GraphQL.load!`, so graphql-ruby is loaded at boot whenever the gem is in your bundle. The schema class for a namespace is built on demand (first request or introspection) via `ActiveAdmin::GraphQL.schema_for(namespace)`.
 
