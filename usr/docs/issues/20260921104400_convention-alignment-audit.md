@@ -48,7 +48,7 @@ Severity low. Confidence high. Location lib/active_admin/graphql/integration.rb 
 
 ## Next
 
-Findings from the 2026-09-21 audit pass are addressed on this branch except replacing CRUD return types with graphql-ruby payload objects, which would break RFC 0004 field types. Keep RFC 0006 Proposed.
+Findings from the 2026-09-21 audit pass are addressed except replacing CRUD return types with graphql-ruby payload objects, which would break RFC 0004 field types. Keep RFC 0006 Proposed. 0.3.0 metadata is cut; tag and gem push wait on make release.
 
 ## Source
 

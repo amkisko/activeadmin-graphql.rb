@@ -16,7 +16,7 @@ Later pass 2026-09-21: CHANGELOG Unreleased names permit_params and nested creat
 
 ## Next
 
-Release after merge. Downstream apps replace initializer patches with graphql permit_params and keep their introspection regression spec.
+0.3.0 metadata is cut. Downstream apps replace initializer patches with graphql permit_params and keep their introspection regression spec after the gem is tagged.
 
 ## Source
 

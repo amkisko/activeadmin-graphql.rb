@@ -31,9 +31,9 @@ Claims from the downstream dependency note, checked in this tree at version 0.2.
 
 ## Next
 
-Keep RFC 0006 Proposed until 2026-10-05 lazy consensus. Cut a gem release after merge so consumers can drop local initializer extensions. Do not omit timestamps from default inputs in this RFC.
+Keep RFC 0006 Proposed until 2026-10-05 lazy consensus. 0.3.0 metadata is cut; tag and gem push wait on make release.
 
-Later pass 2026-09-21: DSL renamed to ActiveAdmin permit_params with nested create and update blocks. create_only, update_only, assignable, and except_assignable were dropped before release. Spec path is spec/requests/graphql_mutation_permit_params_spec.rb. RFC file is rfcs/0006-mutation-permit-params.md.
+Later pass 2026-09-21: DSL renamed to ActiveAdmin permit_params with nested create and update blocks. create_only, update_only, assignable, and except_assignable were dropped before release. Spec path is spec/requests/graphql_mutation_permit_params_spec.rb. RFC file is rfcs/0006-mutation-permit-params.md. Default mutation inputs omit created_at and updated_at.
 
 ## Source
 
