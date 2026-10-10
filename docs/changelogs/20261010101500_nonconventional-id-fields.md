@@ -36,7 +36,7 @@ docs/changelogs/20261010110600_graphql-identity-dsl.md.
 
 ## Next
 
-Folded into 0.3.1 release metadata. Tag and gem push wait on make release.
+Core fix shipped in 0.3.1. Identity DSL follow-on is 0.3.2.
 
 ## Source
 

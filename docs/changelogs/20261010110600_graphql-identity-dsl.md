@@ -21,7 +21,8 @@ Dummy coverage: view `alert_events` / model `AlertEvent` with virtual composite
 
 ## Next
 
-Folded into 0.3.1 release metadata. Tag and gem push wait on make release.
+Folded into 0.3.2 release metadata (0.3.1 already published without this DSL).
+Tag and gem push wait on make release.
 
 ## Source
 
