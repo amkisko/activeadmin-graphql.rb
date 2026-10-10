@@ -23,7 +23,7 @@ Dummy coverage includes SQLite views that project `code AS id` and
 
 ## Next
 
-Ship in the next gem release after 0.3.0.
+Folded into 0.3.1 release metadata. Tag and gem push wait on make release.
 
 ## Source
 

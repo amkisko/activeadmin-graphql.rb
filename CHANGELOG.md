@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.3.1 (2026-10-10)
+
 - Fix GraphQL identity handling for database views and nonconventional primary keys: keep one `id` field, support inferred `id` lookups, reject ambiguous identifiers, and honor attribute filters.
 
 ## 0.3.0 (2026-09-21)
