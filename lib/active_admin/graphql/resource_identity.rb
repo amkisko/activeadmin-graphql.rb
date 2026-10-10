@@ -91,7 +91,7 @@ module ActiveAdmin
       def stringify_attrs(hash)
         raise ArgumentError, "identity decode must return a Hash" unless hash.is_a?(Hash)
 
-        hash.stringify_keys.transform_values { |value| value.nil? ? nil : value.to_s }
+        hash.stringify_keys.transform_values { |value| value&.to_s }
       end
     end
   end
