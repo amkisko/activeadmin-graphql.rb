@@ -4,14 +4,14 @@ require "rack/mock"
 require "stringio"
 
 require_relative "resource_query_proxy/controller"
+require_relative "resource_query_proxy/identity"
 
 module ActiveAdmin
   module GraphQL
-    # Reuses {ResourceController} data-access behaviour (+scoped_collection+, +find_collection+,
-    # +find_resource+, authorization scoping, Ransack, menu scopes, +sorting+, +includes+)
-    # so GraphQL list/detail mutations align with the HTML/JSON list and member REST endpoints.
+    # Reuses ResourceController data access so GraphQL operations align with the REST endpoints.
     class ResourceQueryProxy
       include Controller
+      include Identity
 
       def initialize(aa_resource:, user:, namespace:, graph_params: {})
         @aa_resource = aa_resource
@@ -26,7 +26,12 @@ module ActiveAdmin
 
       def find_member(id)
         extra = member_route_params_for_find(id)
-        controller_for("show", extra).send(:find_resource)
+        controller = controller_for("show", extra)
+        model = @aa_resource.resource_class
+        finder = controller.send(:method_for_find)
+        return controller.send(:find_resource) if model.primary_key.present? || finder != :find
+
+        find_inferred_member(controller, model, extra.fetch("id"))
       rescue ActiveRecord::RecordNotFound
         nil
       end
@@ -42,10 +47,10 @@ module ActiveAdmin
 
         controller = controller_for("index")
         relation = controller.send(:apply_authorization_scope, controller.send(:scoped_collection))
-        primary_key = model.primary_key.to_sym
-        indexed = relation.where(primary_key => string_ids).index_by do |record|
-          record.public_send(primary_key).to_s
-        end
+        primary_key = ActiveAdmin::PrimaryKey.columns(model).first&.to_sym
+        return string_ids.index_with { nil } if primary_key.nil?
+
+        indexed = index_records_by_id(relation.where(primary_key => string_ids), model, primary_key)
         string_ids.index_with { |identifier| indexed[identifier] }
       end
 

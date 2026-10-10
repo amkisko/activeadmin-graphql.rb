@@ -16,7 +16,10 @@ FileUtils.mkdir_p(DUMMY_ROOT.join("tmp", "storage"))
 ActiveRecord::Base.connection_pool.with_connection do |conn|
   needs_schema =
     !conn.table_exists?(:posts) ||
-    !conn.table_exists?(:active_admin_comments)
+    !conn.table_exists?(:active_admin_comments) ||
+    !conn.table_exists?(:string_id_sources) ||
+    !conn.table_exists?(:alternate_key_sources) ||
+    !conn.table_exists?(:integer_id_records)
   if needs_schema
     ActiveRecord::Migration.verbose = false
     load DUMMY_ROOT.join("db", "schema.rb").to_s

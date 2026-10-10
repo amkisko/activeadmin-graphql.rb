@@ -14,12 +14,21 @@ unless defined?(ActiveAdmin::PrimaryKey)
       end
 
       def ordered_columns(model)
-        Array(model.primary_key).map(&:to_s)
+        cols = case (pk = model.primary_key)
+        when nil, false then []
+        when Array then pk.map(&:to_s).reject(&:empty?)
+        else
+          (name = pk.to_s).empty? ? [] : [name]
+        end
+        return cols if cols.any?
+        return %w[id] if model.respond_to?(:columns_hash) && model.columns_hash.key?("id")
+
+        []
+      rescue ActiveRecord::StatementInvalid, ActiveRecord::ConnectionNotEstablished
+        []
       end
 
-      def columns(model)
-        ordered_columns(model)
-      end
+      def columns(model) = ordered_columns(model)
 
       def composite_attribute_hash(model, id_param)
         cols = ordered_columns(model)

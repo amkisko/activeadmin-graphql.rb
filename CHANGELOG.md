@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Fix GraphQL identity handling for database views and nonconventional primary keys: keep one `id` field, support inferred `id` lookups, reject ambiguous identifiers, and honor attribute filters.
+
 ## 0.3.0 (2026-09-21)
 
 - BREAKING: omit `created_at` and `updated_at` from default create and update inputs. List them on `permit_params` to keep them writable.

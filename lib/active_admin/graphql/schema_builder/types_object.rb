@@ -83,12 +83,25 @@ module ActiveAdmin
           end
 
           pk_cols = ActiveAdmin::PrimaryKey.columns(model)
+          if pk_cols.empty?
+            raise ArgumentError,
+              "#{model.name} has no primary key for GraphQL `id`; set self.primary_key on the model"
+          end
 
           type_class.field :id, ::GraphQL::Types::ID, null: false, authorize: false
           type_class.define_method(:id) { ActiveAdmin::PrimaryKey.graphql_id_value(object) }
 
-          attr_names.each do |name|
-            next if pk_cols.include?(name) && pk_cols.size == 1
+          # ActiveAdmin omits a single-column primary key from resource_attributes; still expose
+          # non-id key columns as scalars (composite keys already remain in attributes).
+          # ActiveAdminResource owns GraphQL `id`; never emit a second field from an `id` column.
+          configured_pk_cols = pk_cols
+          if (only = aa_res.graphql_config.only_attributes)
+            configured_pk_cols &= only.map(&:to_s)
+          end
+          configured_pk_cols -= aa_res.graphql_config.exclude_attributes.map(&:to_s)
+          readable_names = (attr_names + configured_pk_cols).uniq
+          readable_names.each do |name|
+            next if name == "id"
 
             col = cols_by_name[name]
             next unless col

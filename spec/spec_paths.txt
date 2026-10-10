@@ -1,10 +1,13 @@
+spec/requests/graphql_identity_columns_spec.rb
 spec/requests/graphql_mutation_permit_params_spec.rb
 spec/requests/graphql_spec.rb
 spec/unit/file_length_cop_spec.rb
 spec/unit/key_value_pairs_spec.rb
 spec/unit/policy_set_cache_spec.rb
+spec/unit/primary_key_identity_spec.rb
 spec/unit/record_source_composite_spec.rb
 spec/unit/record_source_spec.rb
+spec/unit/resource_query_proxy_identity_spec.rb
 spec/unit/resource_query_proxy_spec.rb
 spec/unit/routing_graphql_spec.rb
 spec/unit/schema_builder_spec.rb

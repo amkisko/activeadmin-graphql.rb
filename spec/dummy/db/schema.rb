@@ -27,11 +27,39 @@ ActiveRecord::Schema.define(version: 20_250_330_000_001) do
     t.index ["reset_password_token"], name: "index_admin_users_on_reset_password_token", unique: true
   end
 
+  create_table "alternate_key_sources", force: :cascade do |t|
+    t.string "message"
+  end
+
+  create_table "integer_id_records", id: false, force: :cascade do |t|
+    t.integer "id", null: false
+    t.string "name"
+  end
+
   create_table "library_editions", primary_key: ["book_code", "seq"], id: false, force: :cascade do |t|
     t.string "book_code", null: false
     t.integer "seq", null: false
     t.string "label"
   end
+
+  create_table "string_id_sources", id: false, force: :cascade do |t|
+    t.string "code", null: false
+    t.string "label"
+  end
+
+  # View-backed GraphQL fixtures (no PK on the view).
+  execute "DROP VIEW IF EXISTS string_id_records"
+  execute "DROP TABLE IF EXISTS string_id_records"
+  execute "DROP VIEW IF EXISTS alternate_key_records"
+  execute "DROP TABLE IF EXISTS alternate_key_records"
+  execute <<~SQL
+    CREATE VIEW string_id_records AS
+    SELECT code AS id, label FROM string_id_sources
+  SQL
+  execute <<~SQL
+    CREATE VIEW alternate_key_records AS
+    SELECT id AS row_key, message FROM alternate_key_sources
+  SQL
 
   create_table "posts", force: :cascade do |t|
     t.string "title"

@@ -53,7 +53,9 @@ module ActiveAdmin
           elsif subject.is_a?(ActiveAdmin::Page)
             "page:#{subject.name}"
           elsif subject.is_a?(ActiveRecord::Base)
-            "record:#{subject.class.name}:#{PrimaryKey.graphql_id_value(subject)}"
+            identity = PrimaryKey.graphql_id_value(subject)
+            identity = "#{identity}:object:#{subject.object_id}" if subject.class.primary_key.blank?
+            "record:#{subject.class.name}:#{identity}"
           else
             "object:#{subject.object_id}"
           end

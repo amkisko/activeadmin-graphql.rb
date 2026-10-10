@@ -223,6 +223,19 @@ mutation keys. `permit_params` and nested `create` / `update` blocks narrow
 create and update inputs without hiding query fields. Default mutation inputs
 omit `created_at` and `updated_at`.
 
+### Nonconventional primary keys
+
+GraphQL `id` always comes from `ActiveAdminResource` (`ID!`). An ActiveRecord
+`id` column is never added as a second field. When `self.primary_key` is blank
+but the model still has an `id` column (common for database views that project
+`… AS id`), that column supplies the GraphQL `id` value. When the model has
+neither a primary key nor an `id` column, schema build raises until you set
+`self.primary_key` on the model (for example a view keyed by `row_key`). A
+single-column primary key named something other than `id` is also exposed as
+its own readable field beside `id`, unless `only` or `exclude` omits it. An
+inferred `id` column must contain a unique, non-null value for every row;
+ambiguous member and batched lookups fail instead of selecting one row.
+
 ### Composite primary keys (Rails 7.1+)
 
 For models with `self.primary_key = [:book_code, :seq]` (and no separate `id`

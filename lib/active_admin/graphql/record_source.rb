@@ -6,13 +6,14 @@ module ActiveAdmin
     class RecordSource < ::GraphQL::Dataloader::Source
       def initialize(model_class)
         @model_class = model_class
-        @pk = model_class.primary_key
+        @pk_columns = ActiveAdmin::PrimaryKey.columns(model_class)
+        @pk = ActiveAdmin::PrimaryKey.composite?(model_class) ? model_class.primary_key : @pk_columns.first
       end
 
       def fetch(ids)
         keys = normalized_keys(ids)
         uniq = keys.compact.uniq
-        return Array.new(ids.size) { nil } if uniq.empty?
+        return Array.new(ids.size) { nil } if uniq.empty? || @pk.nil?
 
         indexed = load_records(uniq)
         keys.map { |key| key.nil? ? nil : indexed[key] }
