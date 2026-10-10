@@ -34,7 +34,7 @@ module ActiveAdmin
 
         def cache_key(subject_owner, subject)
           owner_key = subject_owner_key(subject_owner)
-          "#{owner_key}:#{subject_key(subject)}"
+          "#{owner_key}:#{subject_key(subject_owner, subject)}"
         end
 
         private
@@ -47,13 +47,18 @@ module ActiveAdmin
           end
         end
 
-        def subject_key(subject)
+        def subject_key(subject_owner, subject)
           if subject.is_a?(Class)
             "class:#{subject.name}"
           elsif subject.is_a?(ActiveAdmin::Page)
             "page:#{subject.name}"
           elsif subject.is_a?(ActiveRecord::Base)
-            identity = PrimaryKey.graphql_id_value(subject)
+            identity =
+              if subject_owner.respond_to?(:graphql_config)
+                ResourceIdentity.graphql_id_value(subject_owner, subject)
+              else
+                PrimaryKey.graphql_id_value(subject)
+              end
             identity = "#{identity}:object:#{subject.object_id}" if subject.class.primary_key.blank?
             "record:#{subject.class.name}:#{identity}"
           else

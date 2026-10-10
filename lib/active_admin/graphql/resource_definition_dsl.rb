@@ -16,6 +16,15 @@ module ActiveAdmin
         @config.enabled = false
       end
 
+      # Declare GraphQL identity columns when ActiveRecord has no primary key / id column.
+      # See RFC 0007.
+      def identity(*columns, separator: nil, encode: nil, decode: nil)
+        @config.identity_columns = columns.flatten.map(&:to_s)
+        @config.identity_separator = separator
+        @config.identity_encode_proc = encode
+        @config.identity_decode_proc = decode
+      end
+
       def type_name(name)
         @config.graphql_type_name = name.to_s
       end

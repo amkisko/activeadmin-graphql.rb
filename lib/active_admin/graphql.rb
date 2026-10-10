@@ -71,6 +71,7 @@ module ActiveAdmin
           graphql/schema_field
           graphql/auth_context
           graphql/record_source
+          graphql/resource_identity
           graphql/resource_query_proxy
           graphql/run_action_payload
           graphql/run_action_mutation_config

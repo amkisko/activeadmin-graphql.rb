@@ -27,6 +27,13 @@ ActiveRecord::Schema.define(version: 20_250_330_000_001) do
     t.index ["reset_password_token"], name: "index_admin_users_on_reset_password_token", unique: true
   end
 
+  create_table "alert_event_sources", force: :cascade do |t|
+    t.string "entry_type", null: false
+    t.integer "entry_id", null: false
+    t.string "event_type", null: false
+    t.string "payload"
+  end
+
   create_table "alternate_key_sources", force: :cascade do |t|
     t.string "message"
   end
@@ -52,6 +59,8 @@ ActiveRecord::Schema.define(version: 20_250_330_000_001) do
   execute "DROP TABLE IF EXISTS string_id_records"
   execute "DROP VIEW IF EXISTS alternate_key_records"
   execute "DROP TABLE IF EXISTS alternate_key_records"
+  execute "DROP VIEW IF EXISTS alert_events"
+  execute "DROP TABLE IF EXISTS alert_events"
   execute <<~SQL
     CREATE VIEW string_id_records AS
     SELECT code AS id, label FROM string_id_sources
@@ -59,6 +68,10 @@ ActiveRecord::Schema.define(version: 20_250_330_000_001) do
   execute <<~SQL
     CREATE VIEW alternate_key_records AS
     SELECT id AS row_key, message FROM alternate_key_sources
+  SQL
+  execute <<~SQL
+    CREATE VIEW alert_events AS
+    SELECT entry_type, entry_id, event_type, payload FROM alert_event_sources
   SQL
 
   create_table "posts", force: :cascade do |t|

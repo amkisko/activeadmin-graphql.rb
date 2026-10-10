@@ -82,14 +82,20 @@ module ActiveAdmin
             define_singleton_method(:activeadmin_graphql_resource) { aa_res }
           end
 
-          pk_cols = ActiveAdmin::PrimaryKey.columns(model)
+          pk_cols = ActiveAdmin::GraphQL::ResourceIdentity.columns(aa_res)
           if pk_cols.empty?
             raise ArgumentError,
-              "#{model.name} has no primary key for GraphQL `id`; set self.primary_key on the model"
+              "#{model.name} has no primary key for GraphQL `id`; set self.primary_key on the model " \
+              "or graphql { identity ... }"
           end
 
           type_class.field :id, ::GraphQL::Types::ID, null: false, authorize: false
-          type_class.define_method(:id) { ActiveAdmin::PrimaryKey.graphql_id_value(object) }
+          type_class.define_method(:id) do
+            ActiveAdmin::GraphQL::ResourceIdentity.graphql_id_value(
+              self.class.activeadmin_graphql_resource,
+              object
+            )
+          end
 
           # ActiveAdmin omits a single-column primary key from resource_attributes; still expose
           # non-id key columns as scalars (composite keys already remain in attributes).

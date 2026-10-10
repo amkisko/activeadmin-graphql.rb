@@ -14,6 +14,10 @@ module ActiveAdmin
       attr_accessor :permit_params_attributes
       attr_accessor :html_permit_params_attributes
       attr_accessor :extension_block
+      attr_accessor :identity_columns
+      attr_accessor :identity_separator
+      attr_accessor :identity_encode_proc
+      attr_accessor :identity_decode_proc
 
       # Optional resolver overrides (set from +graphql do+). SchemaBuilder still owns field names,
       # arguments, and types; procs replace only the Ruby resolution body.

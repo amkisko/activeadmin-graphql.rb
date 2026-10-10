@@ -5,6 +5,8 @@
 ## 0.3.1 (2026-10-10)
 
 - Fix GraphQL identity handling for database views and nonconventional primary keys: keep one `id` field, support inferred `id` lookups, reject ambiguous identifiers, and honor attribute filters.
+- Add `graphql { identity ... }` so keyless views can declare GraphQL id columns, optional `separator`, and `encode` / `decode` (RFC 0007).
+- Fail schema build when a registered model has neither a primary key nor an `id` column and no `identity` declaration; set `self.primary_key`, use `identity`, or `graphql { disable! }`.
 
 ## 0.3.0 (2026-09-21)
 

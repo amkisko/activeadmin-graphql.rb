@@ -51,10 +51,12 @@ module ActiveAdmin
                 if where
                   blob = where.to_h.stringify_keys
                   graph = builder.graph_params_from_find_blob(aa_res, blob)
-                  rid = ActiveAdmin::PrimaryKey.member_param_hash(model, blob)
+                  rid = ActiveAdmin::GraphQL::ResourceIdentity.member_param_hash(aa_res, blob)
                 else
                   graph = builder.graph_params_for_mutation(aa_res, kw)
-                  rid = ActiveAdmin::PrimaryKey.field_kw_to_param_hash(model, id: id, **kw)
+                  rid = ActiveAdmin::GraphQL::ResourceIdentity.field_kw_to_param_hash(
+                    aa_res, id: id, **kw
+                  )
                 end
               rescue ArgumentError => e
                 raise ::GraphQL::ExecutionError, e.message

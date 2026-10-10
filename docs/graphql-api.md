@@ -229,12 +229,28 @@ GraphQL `id` always comes from `ActiveAdminResource` (`ID!`). An ActiveRecord
 `id` column is never added as a second field. When `self.primary_key` is blank
 but the model still has an `id` column (common for database views that project
 `… AS id`), that column supplies the GraphQL `id` value. When the model has
-neither a primary key nor an `id` column, schema build raises until you set
-`self.primary_key` on the model (for example a view keyed by `row_key`). A
-single-column primary key named something other than `id` is also exposed as
-its own readable field beside `id`, unless `only` or `exclude` omits it. An
-inferred `id` column must contain a unique, non-null value for every row;
-ambiguous member and batched lookups fail instead of selecting one row.
+neither a primary key nor an `id` column, declare GraphQL identity on the
+resource (RFC 0007), set `self.primary_key` on the model, or omit the resource
+with `graphql { disable! }`. A single-column primary key named something other
+than `id` is also exposed as its own readable field beside `id`, unless `only`
+or `exclude` omits it. An inferred `id` column must contain a unique, non-null
+value for every row; ambiguous member and batched lookups fail instead of
+selecting one row.
+
+```ruby
+# View with no PK and no id column; virtual identity matches HTML admin.
+ActiveAdmin.register AlertEvent do
+  graphql do
+    identity :entry_type, :entry_id, :event_type, separator: ":"
+    # optional: encode: ->(record) { record.id }, decode: ->(id) { ... }
+  end
+end
+```
+
+With `separator: ":"`, GraphQL `id` is `entry_type:entry_id:event_type`. Keep
+the model’s `def id` (if any) in the same shape so HTML and GraphQL share
+member ids. Without `separator`, multi-column identity uses the same JSON
+object string as composite ActiveRecord primary keys.
 
 ### Composite primary keys (Rails 7.1+)
 
@@ -242,8 +258,10 @@ For models with `self.primary_key = [:book_code, :seq]` (and no separate `id`
 column), Active Admin treats GraphQL as follows:
 
 * `id` on the object type — JSON object string with all key columns in
-  model order (same format Rails uses when casting composite ids), for example
-  `{"book_code":"CPK","seq":7}`.
+  model order, for example `{"book_code":"CPK","seq":7}`. This is the GraphQL
+  wire format. It is not the Rails form/URL underscore packing described in
+  the Composite Primary Keys guide (`/books/2_25` with
+  `params.extract_value(:id)`).
 * Readable fields — each primary-key column is also exposed as its own field
   (in addition to `id`) so clients can load scalars without parsing JSON.
 * `LibraryEditionWhereInput` (and similar) — either optional `id` (that JSON
@@ -255,12 +273,20 @@ column), Active Admin treats GraphQL as follows:
   inputs (unlike single `id` tables, where the key is omitted from assignable
   attributes).
 
-For REST/HTML member routes, `ResourceController#find_resource` must resolve composite ids from `params[:id]` (JSON string) or from individual primary-key params. Stock ActiveAdmin 3.x only passes a single `params[:id]` into `find`; an ActiveAdmin fork (or patch) that implements composite-aware `find_resource` keeps the admin UI aligned with GraphQL. The GraphQL layer also works with `ActiveAdmin::GraphQL::ResourceQueryProxy` using Rails’ tuple id convention for `Relation#find`.
+For REST/HTML member routes, `ResourceController#find_resource` must resolve
+composite ids from `params[:id]` or from individual primary-key params. Stock
+ActiveAdmin 3.x only passes a single `params[:id]` into `find`; an ActiveAdmin
+fork (or patch) that implements composite-aware `find_resource` keeps the
+admin UI aligned with GraphQL. After decoding the GraphQL JSON `id`, the gem
+uses Rails’ array/tuple conventions for `Relation#find` and
+`where(primary_key => [tuple, …])` as in the guide.
 
-The gem ships `ActiveAdmin::PrimaryKey` when the core constant is missing (upstream). A fork may define `PrimaryKey` and extended `find_resource` in `ResourceController` instead.
+The gem ships `ActiveAdmin::PrimaryKey` when the core constant is missing
+(upstream). A fork may define `PrimaryKey` and extended `find_resource` in
+`ResourceController` instead.
 
-`ActiveAdmin::GraphQL::RecordSource` batch-loads composite associations using
-Rails `where(primary_key => [tuple, …])`.
+Alignment notes versus the Rails guide:
+`docs/issues/20261010111159_rails-composite-primary-keys-alignment.md`.
 
 ### Collection query arguments
 
@@ -359,6 +385,7 @@ Inside `ActiveAdmin.register` you can narrow the GraphQL surface:
 ActiveAdmin.register Post do
   graphql do
     disable!                          # omit this resource from the schema
+    # identity :entry_type, :entry_id, :event_type, separator: ":"  # RFC 0007
     type_name "BlogPost"              # GraphQL object / mutation type basename (`graphql_name` alias)
     only :title, :body, :published_at # expose only these attributes on queries
     exclude :internal_score           # or `except` / `exclude`
@@ -379,6 +406,9 @@ end
 ```
 
 * `disable!` — resource is not included in Query or Mutation.
+* `identity` — declare GraphQL id columns (and optional `separator`, `encode`,
+  `decode`) when the model has no ActiveRecord primary key and no `id` column
+  (RFC 0007).
 * `type_name` (or `graphql_name`) — overrides the default GraphQL type name
   derived from the model (object types, mutations, and Rails enum GraphQL
   types use this basename).

@@ -19,7 +19,8 @@ ActiveRecord::Base.connection_pool.with_connection do |conn|
     !conn.table_exists?(:active_admin_comments) ||
     !conn.table_exists?(:string_id_sources) ||
     !conn.table_exists?(:alternate_key_sources) ||
-    !conn.table_exists?(:integer_id_records)
+    !conn.table_exists?(:integer_id_records) ||
+    !conn.table_exists?(:alert_event_sources)
   if needs_schema
     ActiveRecord::Migration.verbose = false
     load DUMMY_ROOT.join("db", "schema.rb").to_s

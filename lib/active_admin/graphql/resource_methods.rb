@@ -22,7 +22,7 @@ module ActiveAdmin
 
         def graphql_assignable_attribute_names
           names = attributes_for_graphql.map(&:to_s)
-          pk_cols = ActiveAdmin::PrimaryKey.columns(resource_class)
+          pk_cols = ActiveAdmin::GraphQL::ResourceIdentity.columns(self)
           return names if pk_cols.size > 1
 
           names - pk_cols

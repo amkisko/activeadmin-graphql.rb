@@ -27,7 +27,31 @@ RSpec.describe ActiveAdmin::PrimaryKey, "GraphQL identity columns" do
 
     expect {
       ActiveAdmin::GraphQL.schema_for(ActiveAdmin.application.namespaces[:admin])
-    }.to raise_error(ArgumentError, /OrphanKeyRow.*primary key/i)
+    }.to raise_error(ArgumentError, /OrphanKeyRow.*(primary key|identity)/i)
+  ensure
+    ActiveAdmin::GraphQL.clear_schema_cache!
+    load_resources {}
+  end
+
+  it "omits a model with neither primary key nor id column when graphql disable! is set" do
+    model = Class.new(ApplicationRecord) do
+      self.table_name = "alternate_key_records"
+      self.primary_key = nil
+    end
+    stub_const("OrphanKeyRow", model)
+
+    ActiveAdmin::GraphQL.clear_schema_cache!
+    load_resources do
+      ActiveAdmin.application.namespaces[:admin].graphql = true
+      ActiveAdmin.register(Post)
+      ActiveAdmin.register(OrphanKeyRow) { graphql { disable! } }
+    end
+
+    schema = ActiveAdmin::GraphQL.schema_for(ActiveAdmin.application.namespaces[:admin])
+    type_names = schema.types.keys
+
+    expect(type_names).to include("Post")
+    expect(type_names).not_to include("OrphanKeyRow")
   ensure
     ActiveAdmin::GraphQL.clear_schema_cache!
     load_resources {}

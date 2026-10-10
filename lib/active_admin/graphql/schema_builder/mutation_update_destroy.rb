@@ -24,7 +24,7 @@ module ActiveAdmin
               blob = where.to_h.stringify_keys
               graph = sb.graph_params_from_find_blob(aa_res, blob)
               begin
-                rid = ActiveAdmin::PrimaryKey.member_param_hash(model, blob)
+                rid = ActiveAdmin::GraphQL::ResourceIdentity.member_param_hash(aa_res, blob)
               rescue ArgumentError => e
                 raise ::GraphQL::ExecutionError, e.message
               end
@@ -90,7 +90,7 @@ module ActiveAdmin
               blob = where.to_h.stringify_keys
               graph = sb.graph_params_from_find_blob(aa_res, blob)
               begin
-                rid = ActiveAdmin::PrimaryKey.member_param_hash(model, blob)
+                rid = ActiveAdmin::GraphQL::ResourceIdentity.member_param_hash(aa_res, blob)
               rescue ArgumentError => e
                 raise ::GraphQL::ExecutionError, e.message
               end

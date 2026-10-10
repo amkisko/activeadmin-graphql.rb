@@ -31,8 +31,8 @@ module ActiveAdmin
         finder = controller.send(:method_for_find)
         return controller.send(:find_resource) if model.primary_key.present? || finder != :find
 
-        find_inferred_member(controller, model, extra.fetch("id"))
-      rescue ActiveRecord::RecordNotFound
+        find_identity_member(controller, model, extra.fetch("id"))
+      rescue ActiveRecord::RecordNotFound, ArgumentError
         nil
       end
 
@@ -41,13 +41,14 @@ module ActiveAdmin
         return {} if string_ids.empty?
 
         model = @aa_resource.resource_class
-        if ActiveAdmin::PrimaryKey.composite?(model)
+        identity_cols = ActiveAdmin::GraphQL::ResourceIdentity.columns(@aa_resource)
+        if ActiveAdmin::PrimaryKey.composite?(model) || identity_cols.size > 1
           return string_ids.index_with { |identifier| find_member(identifier) }
         end
 
         controller = controller_for("index")
         relation = controller.send(:apply_authorization_scope, controller.send(:scoped_collection))
-        primary_key = ActiveAdmin::PrimaryKey.columns(model).first&.to_sym
+        primary_key = identity_cols.first&.to_sym
         return string_ids.index_with { nil } if primary_key.nil?
 
         indexed = index_records_by_id(relation.where(primary_key => string_ids), model, primary_key)

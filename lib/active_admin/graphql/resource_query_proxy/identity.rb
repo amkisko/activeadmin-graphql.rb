@@ -6,11 +6,11 @@ module ActiveAdmin
       module Identity
         private
 
-        def find_inferred_member(controller, model, id)
-          primary_key = ActiveAdmin::PrimaryKey.columns(model).first
-          raise ActiveRecord::RecordNotFound unless primary_key
+        def find_identity_member(controller, model, id)
+          attrs = ActiveAdmin::GraphQL::ResourceIdentity.attributes_for_id(@aa_resource, id)
+          raise ActiveRecord::RecordNotFound if attrs.blank?
 
-          records = controller.send(:scoped_collection).where(primary_key => id).limit(2).to_a
+          records = controller.send(:scoped_collection).where(attrs).limit(2).to_a
           raise_ambiguous_id!(model) if records.size > 1
 
           records.first || raise(ActiveRecord::RecordNotFound)
