@@ -77,6 +77,7 @@ module ActiveAdmin
           graphql/run_action_mutation_config
           graphql/run_action_mutation_dsl
           graphql/key_value_pair_input
+          graphql/policy_adapter
           graphql/policy_set_cache
           graphql/mutation_execution_error
           graphql/schema_builder

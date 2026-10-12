@@ -118,13 +118,16 @@ module ActiveAdmin
             type_class.define_method(name.to_sym) { object.public_send(name) }
           end
 
-          type_class.field :activeadmin_policies, policy_set_type, null: false, camelize: false, authorize: false
-          type_class.define_method(:activeadmin_policies) do
-            ActiveAdmin::GraphQL::PolicySetCache.fetch(
-              context,
-              subject_owner: aa_res,
-              subject: object
-            )
+          adapter = policy_adapter
+          if adapter&.include_resource?(aa_res)
+            type_class.field :activeadmin_policies, policy_set_type, null: false, camelize: false, authorize: false
+            type_class.define_method(:activeadmin_policies) do
+              ActiveAdmin::GraphQL::PolicySetCache.fetch(
+                context,
+                subject_owner: aa_res,
+                subject: object
+              )
+            end
           end
 
           if (ext = aa_res.graphql_config.extension_block)

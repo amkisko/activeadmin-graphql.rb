@@ -25,7 +25,7 @@ module ActiveAdmin
             @aa_by_graphql_type_name[graphql_type_name_for(aa_res)] = aa_res
           end
 
-          wire_belongs_to_associations
+          wire_belongs_to_associations if @namespace.graphql_belongs_to_associations_enabled
 
           active_resources.each do |aa_res|
             model = aa_res.resource_class
@@ -35,9 +35,10 @@ module ActiveAdmin
             @find_input_types[model] = build_find_input_type(aa_res)
           end
 
-          union_members = @object_types.values.uniq
+          queryable = queryable_resources
+          union_members = queryable.filter_map { |aa_res| @object_types[aa_res.resource_class] }.uniq
           registered_resource_union =
-            if union_members.any?
+            if @namespace.graphql_registered_resource_enabled && union_members.any?
               u = Class.new(::GraphQL::Schema::Union) do
                 graphql_name "ActiveAdminRegisteredResource"
                 description "Any resource object type registered for GraphQL in this namespace."
@@ -47,10 +48,12 @@ module ActiveAdmin
               u
             end
 
+          ensure_query_surface!(registered_resource_union: registered_resource_union)
           query_type = build_query_type(registered_resource_union: registered_resource_union)
           mutation_type = build_mutation_type
 
           model_to_type = @object_types
+          queryable_models = queryable.map(&:resource_class)
 
           schema = Class.new(::GraphQL::Schema)
           schema.query(query_type)
@@ -61,6 +64,11 @@ module ActiveAdmin
           if registered_resource_union
             schema.define_singleton_method(:resolve_type) do |abstract_type, obj, ctx|
               if abstract_type == registered_resource_union
+                unless queryable_models.include?(obj.class)
+                  raise ::GraphQL::ExecutionError,
+                    "ActiveAdminRegisteredResource could not resolve type for #{obj.class.name}"
+                end
+
                 typ = model_to_type[obj.class]
                 unless typ
                   raise ::GraphQL::ExecutionError,
@@ -77,6 +85,27 @@ module ActiveAdmin
           hook = @namespace.graphql_configure_schema
           hook.call(schema) if hook.respond_to?(:call)
           schema
+        end
+
+        private
+
+        def ensure_query_surface!(registered_resource_union:)
+          return if registered_resource_union
+          return if queryable_resources.any?
+          return if policy_adapter
+          return if namespace_page_graphql_fields?
+
+          raise ActiveAdmin::DependencyError,
+            "GraphQL Query type has no fields for namespace #{@namespace.name.inspect}. " \
+            "Enable list/show (graphql_queries_enabled_default / enable_queries!), " \
+            "policies (graphql_policies_enabled), registered_resource, " \
+            "or a page graphql_field — or turn off graphql for this namespace."
+        end
+
+        def namespace_page_graphql_fields?
+          @namespace.resources.any? do |resource|
+            resource.is_a?(ActiveAdmin::Page) && resource.graphql_fields.any?
+          end
         end
       end
     end

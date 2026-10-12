@@ -8,7 +8,11 @@ module ActiveAdmin
 
         def graphql_config
           @graphql_config ||= ActiveAdmin::GraphQL::ResourceConfig.new(
-            enabled: namespace.graphql_resource_enabled_default
+            enabled: namespace.graphql_resource_enabled_default,
+            queries_enabled: namespace.graphql_queries_enabled_default,
+            mutations_enabled: namespace.graphql_mutations_enabled_default,
+            run_actions_enabled: namespace.graphql_run_actions_enabled_default,
+            policies_enabled: namespace.graphql_policies_enabled_default
           )
         end
 

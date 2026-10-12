@@ -28,6 +28,40 @@ module ActiveAdmin
           aa_res.attributes_for_graphql
         end
 
+        # +nil+ when policy fields are off (+graphql_policies_enabled+ false).
+        def policy_adapter
+          return @policy_adapter if defined?(@policy_adapter)
+
+          unless @namespace.graphql_policies_enabled
+            @policy_adapter = nil
+            return @policy_adapter
+          end
+
+          raw = @namespace.graphql_policy_adapter
+          klass = case raw
+          when nil, true, :default
+            PolicyAdapter
+          when String
+            raw.constantize
+          when Class
+            raw
+          else
+            raise ActiveAdmin::DependencyError,
+              "graphql_policy_adapter must be a Class, String, or nil (got #{raw.inspect})"
+          end
+          @policy_adapter = klass.new(namespace: @namespace)
+        end
+
+        def queryable_resources
+          active_resources.select { |r| r.graphql_config.queries_enabled }
+        end
+
+        def aa_by_graphql_type_name_for_queries
+          queryable_resources.each_with_object({}) do |aa_res, map|
+            map[graphql_type_name_for(aa_res)] = aa_res
+          end
+        end
+
         def configure_schema_plugins(schema)
           if (c = @namespace.graphql_max_complexity)
             schema.max_complexity(c)

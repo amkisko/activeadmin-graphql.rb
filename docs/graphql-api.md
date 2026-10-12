@@ -35,6 +35,10 @@ ActiveAdmin.setup do |config|
     # admin.graphql_path = "graphql"
     # Optional — set false so only resources with a graphql block enter the schema
     # admin.graphql_resource_enabled_default = false
+    # Optional — trim always-on surfaces for a narrow API
+    # admin.graphql_policies_enabled = false
+    # admin.graphql_registered_resource_enabled = false
+    # admin.graphql_belongs_to_associations_enabled = false
   end
 end
 ```
@@ -52,6 +56,29 @@ Each namespace inherits these options (defaults in parentheses):
   default, matching 0.3.x). Set to `false` for opt-in: only resources that call
   `graphql { }` (or `graphql { enable! }`) appear in the schema. `disable!`
   still omits a resource.
+* `graphql_queries_enabled_default` — seed for per-resource read fields
+  (`true` by default): named list/show fields and membership in
+  `registered_resource` / `ActiveAdminRegisteredResource`. Set `false` and use
+  `enable_queries!` for opt-in reads. Object types may still exist for mutations.
+* `graphql_mutations_enabled_default` — seed for per-resource CRUD mutations
+  (`true` by default). Set `false` and use `enable_mutations!` for opt-in writes.
+* `graphql_run_actions_enabled_default` — seed for batch/member/collection
+  action mutations (`true` by default).
+* `graphql_policies_enabled` — publish `activeadmin_policies` query fields and
+  allow per-object policy fields (`true` by default). Schema build fails if this
+  leaves `Query` with no fields and no other query surface is enabled.
+* `graphql_policies_enabled_default` — seed for per-resource `policies_enabled`
+  (`true` by default). Use `enable_policies!` / `disable_policies!` per resource.
+* `graphql_policy_adapter` — class that builds `activeadmin_policies` payloads
+  (`ActiveAdmin::GraphQL::PolicyAdapter` by default). Set a subclass (or constant
+  `String`) to replace payload logic; the default adapter still honors
+  `graphql_policy_actions` / `graphql_policy_action_mapper` /
+  `graphql_policy_extra` / `graphql_policy_transform`.
+* `graphql_registered_resource_enabled` — include `registered_resource` and the
+  `ActiveAdminRegisteredResource` union when at least one queryable resource
+  exists (`true` by default).
+* `graphql_belongs_to_associations_enabled` — wire non-polymorphic `belongs_to`
+  fields between registered resource types (`true` by default).
 * `graphql_path` — path segment under the namespace mount (`"graphql"`).
 * `graphql_multiplex_max` — maximum operations per multiplexed JSON array
   request (`20`).
@@ -205,6 +232,14 @@ collection queries). They then run the same controller actions and blocks as the
 UI, including any `authorize!` or `authorize_resource!` calls.
 
 See the ActiveAdmin guide [Authorization adapter](https://activeadmin.info/13-authorization-adapter) for adapter setup; the same rules apply to GraphQL.
+
+Policy preflight fields (`activeadmin_policies`, `activeadmin_policies_for`, and
+per-object `activeadmin_policies`) are published when `graphql_policies_enabled`
+is true. Payloads come from `graphql_policy_adapter`. The default
+`ActiveAdmin::GraphQL::PolicyAdapter` asks the authorization adapter which
+actions are allowed and applies the optional `graphql_policy_*` hooks. Assign a
+subclass that implements `policy_set` (and optionally `include_resource?`) to
+replace the payload builder.
 
 ## Schema overview
 
@@ -415,6 +450,13 @@ end
 * `enable!` — include this resource when `graphql_resource_enabled_default` is
   `false`. An empty `graphql` block has the same effect.
 * `disable!` — resource is not included in Query or Mutation.
+* `enable_queries!` / `disable_queries!` — list/show fields and
+  `registered_resource` membership for this resource.
+* `enable_mutations!` / `disable_mutations!` — create/update/delete mutations.
+* `enable_run_actions!` / `disable_run_actions!` — batch/member/collection
+  action mutations.
+* `enable_policies!` / `disable_policies!` — object `activeadmin_policies` and
+  inclusion in the `activeadmin_policies` resources matrix.
 * `identity` — declare GraphQL id columns (and optional `separator`, `encode`,
   `decode`) when the model has no ActiveRecord primary key and no `id` column
   (RFC 0007).

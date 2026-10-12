@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require_relative "policy_adapter"
 require_relative "resource_definition_dsl"
 require_relative "resource_methods"
 
@@ -29,6 +30,15 @@ module ActiveAdmin
         # true preserves 0.3.x: every ActiveRecord resource is in the schema once the namespace endpoint is on.
         # Set false for opt-in per resource (empty graphql block or enable!).
         ns.register :graphql_resource_enabled_default, true
+        ns.register :graphql_queries_enabled_default, true
+        ns.register :graphql_mutations_enabled_default, true
+        ns.register :graphql_run_actions_enabled_default, true
+        ns.register :graphql_policies_enabled, true
+        ns.register :graphql_policies_enabled_default, true
+        # Payload builder for policy fields when graphql_policies_enabled is true.
+        ns.register :graphql_policy_adapter, ActiveAdmin::GraphQL::PolicyAdapter
+        ns.register :graphql_registered_resource_enabled, true
+        ns.register :graphql_belongs_to_associations_enabled, true
         ns.register :graphql_path, "graphql"
         ns.register :graphql_multiplex_max, 20
         ns.register :graphql_dataloader, nil

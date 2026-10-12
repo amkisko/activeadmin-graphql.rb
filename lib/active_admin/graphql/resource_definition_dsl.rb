@@ -3,21 +3,16 @@
 require_relative "run_action_mutation_config"
 require_relative "run_action_mutation_dsl"
 require_relative "mutation_input_definition_dsl"
+require_relative "resource_surface_dsl"
 
 module ActiveAdmin
   module GraphQL
     # DSL for +graphql do ... end+ inside +ActiveAdmin.register+.
     class ResourceDefinitionDSL
+      include ResourceSurfaceDSL
+
       def initialize(config)
         @config = config
-      end
-
-      def enable!
-        @config.enabled = true
-      end
-
-      def disable!
-        @config.enabled = false
       end
 
       # Declare GraphQL identity columns when ActiveRecord has no primary key / id column.

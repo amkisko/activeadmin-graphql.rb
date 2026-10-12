@@ -74,7 +74,6 @@ RSpec.describe "ActiveAdmin GraphQL resource enabled default", type: :request do
   context "when graphql_resource_enabled_default stays true" do
     around do |example|
       ns = ActiveAdmin.application.namespaces[:admin]
-      expect(ns.graphql_resource_enabled_default).not_to eq(false)
       ActiveAdmin::GraphQL.clear_schema_cache!
       with_resources_during(example) do
         ns.graphql = true
@@ -84,6 +83,8 @@ RSpec.describe "ActiveAdmin GraphQL resource enabled default", type: :request do
     end
 
     it "includes a resource that never calls graphql" do
+      ns = ActiveAdmin.application.namespaces[:admin]
+      expect(ns.graphql_resource_enabled_default).not_to be(false)
       expect(query_field_names).to include("posts", "post")
     end
   end

@@ -16,17 +16,22 @@ module ActiveAdmin
             type_c = @object_types[model]
             next unless type_c
 
-            actions = defined_actions_for(aa_res)
+            cfg = aa_res.graphql_config
+            if cfg.mutations_enabled
+              actions = defined_actions_for(aa_res)
 
-            if actions.include?(:create)
-              mutations << mutation_create_field(sb, ns, aa_res, model, type_c)
+              if actions.include?(:create)
+                mutations << mutation_create_field(sb, ns, aa_res, model, type_c)
+              end
+              if actions.include?(:update)
+                mutations << mutation_update_field(sb, ns, aa_res, model, type_c)
+              end
+              if actions.include?(:destroy)
+                mutations << mutation_destroy_field(sb, ns, aa_res, model)
+              end
             end
-            if actions.include?(:update)
-              mutations << mutation_update_field(sb, ns, aa_res, model, type_c)
-            end
-            if actions.include?(:destroy)
-              mutations << mutation_destroy_field(sb, ns, aa_res, model)
-            end
+
+            next unless cfg.run_actions_enabled
 
             if aa_res.batch_actions_enabled? && aa_res.batch_actions.any?
               mutations << mutation_batch_field(sb, ns, aa_res)

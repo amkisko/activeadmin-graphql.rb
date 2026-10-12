@@ -7,6 +7,8 @@ module ActiveAdmin
         def add_model_query_fields!(query_class, builder:, ns:, aa_by_model:, object_types:,
           list_filter_input_types:, find_input_types:)
           aa_by_model.each do |model, aa_res|
+            next unless aa_res.graphql_config.queries_enabled
+
             builder.define_query_collection_field!(
               query_class, model, aa_res, builder, ns, object_types, list_filter_input_types
             )

@@ -3,6 +3,10 @@
 ## Unreleased
 
 - Add namespace setting `graphql_resource_enabled_default` (`true` by default) and `graphql { enable! }` so apps can opt resources into the schema instead of opting out with `disable!`.
+- Add namespace toggles for `registered_resource` and `belongs_to` wiring (`graphql_registered_resource_enabled`, `graphql_belongs_to_associations_enabled`; both `true` by default).
+- Add `graphql_policies_enabled` / `graphql_policies_enabled_default` for policy field publishing and per-resource seeds, plus `graphql_policy_adapter` (default `ActiveAdmin::GraphQL::PolicyAdapter`) for payload construction.
+- Add per-resource surface defaults and DSL (`graphql_queries_enabled_default`, `graphql_mutations_enabled_default`, `graphql_run_actions_enabled_default`, plus `enable_*!` / `disable_*!`) so apps can trim list/show, CRUD, run-action, and policy fields without disabling the whole resource.
+- Treat `queries_enabled` as the read surface: omit `registered_resource` union membership when queries are off; fail schema build when `Query` would have no fields.
 
 ## 0.3.2 (2026-10-10)
 

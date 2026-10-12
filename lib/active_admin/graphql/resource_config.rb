@@ -8,6 +8,10 @@ module ActiveAdmin
     # Per-resource GraphQL options set via +graphql+ in +ActiveAdmin.register+.
     class ResourceConfig
       attr_accessor :enabled
+      attr_accessor :queries_enabled
+      attr_accessor :mutations_enabled
+      attr_accessor :run_actions_enabled
+      attr_accessor :policies_enabled
       attr_accessor :graphql_type_name
       attr_accessor :only_attributes
       attr_accessor :exclude_attributes
@@ -31,8 +35,18 @@ module ActiveAdmin
       # {RunActionMutationConfig#payload_type} is not set. Falls back to {RunActionPayload}.
       attr_accessor :run_action_payload_type
 
-      def initialize(enabled: true)
+      def initialize(
+        enabled: true,
+        queries_enabled: true,
+        mutations_enabled: true,
+        run_actions_enabled: true,
+        policies_enabled: true
+      )
         @enabled = enabled
+        @queries_enabled = queries_enabled
+        @mutations_enabled = mutations_enabled
+        @run_actions_enabled = run_actions_enabled
+        @policies_enabled = policies_enabled
         @exclude_attributes = []
       end
 

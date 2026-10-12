@@ -16,6 +16,7 @@ module ActiveAdmin
           aa_by_model = @aa_by_model
           object_types = @object_types
           aa_by_graphql_type_name = @aa_by_graphql_type_name
+          query_type_name_map = aa_by_graphql_type_name_for_queries
           list_filter_input_types = @list_filter_input_types
           find_input_types = @find_input_types
 
@@ -31,7 +32,7 @@ module ActiveAdmin
                 builder: builder,
                 ns: ns,
                 registered_resource_union: registered_resource_union,
-                aa_by_graphql_type_name: aa_by_graphql_type_name
+                aa_by_graphql_type_name: query_type_name_map
               )
             end
 

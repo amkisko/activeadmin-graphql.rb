@@ -6,10 +6,11 @@ module ActiveAdmin
     class PolicySetCache
       class << self
         def fetch(context, subject_owner:, subject:)
-          namespace = context[:namespace]
-          unless namespace
-            return policy_builder(context).send(
-              :build_policy_set,
+          adapter = policy_adapter(context)
+          raise ActiveAdmin::DependencyError, "graphql_policy_adapter is disabled" unless adapter
+
+          unless context[:namespace]
+            return adapter.policy_set(
               auth: context[:auth],
               subject_owner: subject_owner,
               subject: subject,
@@ -19,13 +20,16 @@ module ActiveAdmin
 
           cache = context[:policy_set_cache] ||= {}
           key = cache_key(subject_owner, subject)
-          cache[key] ||= policy_builder(context).send(
-            :build_policy_set,
+          cache[key] ||= adapter.policy_set(
             auth: context[:auth],
             subject_owner: subject_owner,
             subject: subject,
             context: context
           )
+        end
+
+        def policy_adapter(context)
+          policy_builder(context).send(:policy_adapter)
         end
 
         def policy_builder(context)
