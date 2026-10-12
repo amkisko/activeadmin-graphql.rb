@@ -31,8 +31,8 @@ module ActiveAdmin
       # {RunActionMutationConfig#payload_type} is not set. Falls back to {RunActionPayload}.
       attr_accessor :run_action_payload_type
 
-      def initialize
-        @enabled = true
+      def initialize(enabled: true)
+        @enabled = enabled
         @exclude_attributes = []
       end
 

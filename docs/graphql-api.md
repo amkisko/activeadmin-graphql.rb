@@ -33,6 +33,8 @@ ActiveAdmin.setup do |config|
     admin.graphql = true
     # Optional — default is "graphql", i.e. POST /admin/graphql
     # admin.graphql_path = "graphql"
+    # Optional — set false so only resources with a graphql block enter the schema
+    # admin.graphql_resource_enabled_default = false
   end
 end
 ```
@@ -45,6 +47,11 @@ Run `bin/rails active_admin:install` or reload routes if needed so
 Each namespace inherits these options (defaults in parentheses):
 
 * `graphql` — set to `true` to mount the endpoint (`false` by default).
+* `graphql_resource_enabled_default` — whether each registered ActiveRecord
+  resource is included in the schema without a `graphql` block (`true` by
+  default, matching 0.3.x). Set to `false` for opt-in: only resources that call
+  `graphql { }` (or `graphql { enable! }`) appear in the schema. `disable!`
+  still omits a resource.
 * `graphql_path` — path segment under the namespace mount (`"graphql"`).
 * `graphql_multiplex_max` — maximum operations per multiplexed JSON array
   request (`20`).
@@ -405,6 +412,8 @@ ActiveAdmin.register Post do
 end
 ```
 
+* `enable!` — include this resource when `graphql_resource_enabled_default` is
+  `false`. An empty `graphql` block has the same effect.
 * `disable!` — resource is not included in Query or Mutation.
 * `identity` — declare GraphQL id columns (and optional `separator`, `encode`,
   `decode`) when the model has no ActiveRecord primary key and no `id` column

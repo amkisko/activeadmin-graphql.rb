@@ -26,6 +26,9 @@ module ActiveAdmin
       def register_namespace_settings!
         ns = ActiveAdmin::NamespaceSettings
         ns.register :graphql, false
+        # true preserves 0.3.x: every ActiveRecord resource is in the schema once the namespace endpoint is on.
+        # Set false for opt-in per resource (empty graphql block or enable!).
+        ns.register :graphql_resource_enabled_default, true
         ns.register :graphql_path, "graphql"
         ns.register :graphql_multiplex_max, 20
         ns.register :graphql_dataloader, nil
@@ -64,7 +67,10 @@ module ActiveAdmin
       module ResourceDSLMethods
         def graphql(&block)
           if block
-            ActiveAdmin::GraphQL::ResourceDefinitionDSL.new(config.graphql_config).instance_exec(&block)
+            cfg = config.graphql_config
+            # Presence of a graphql block is an intentional opt-in when the namespace default is false.
+            cfg.enabled = true
+            ActiveAdmin::GraphQL::ResourceDefinitionDSL.new(cfg).instance_exec(&block)
           end
           config.graphql_config
         end

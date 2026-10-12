@@ -7,7 +7,9 @@ module ActiveAdmin
         SERVER_OWNED_TIMESTAMP_COLUMNS = %w[created_at updated_at].freeze
 
         def graphql_config
-          @graphql_config ||= ActiveAdmin::GraphQL::ResourceConfig.new
+          @graphql_config ||= ActiveAdmin::GraphQL::ResourceConfig.new(
+            enabled: namespace.graphql_resource_enabled_default
+          )
         end
 
         def attributes_for_graphql

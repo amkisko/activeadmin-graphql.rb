@@ -12,6 +12,10 @@ module ActiveAdmin
         @config = config
       end
 
+      def enable!
+        @config.enabled = true
+      end
+
       def disable!
         @config.enabled = false
       end

@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Add namespace setting `graphql_resource_enabled_default` (`true` by default) and `graphql { enable! }` so apps can opt resources into the schema instead of opting out with `disable!`.
+
 ## 0.3.2 (2026-10-10)
 
 - Add `graphql { identity ... }` so keyless views can declare GraphQL id columns, optional `separator`, and `encode` / `decode` (RFC 0007).
