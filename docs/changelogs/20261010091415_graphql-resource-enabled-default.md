@@ -25,11 +25,10 @@ block, `enable!`, and `disable!`.
 
 ## Next
 
-Consumers that expose a narrow GraphQL surface should set
-`graphql_resource_enabled_default = false` in the ActiveAdmin namespace and add
-`graphql` blocks only where the API should include the resource.
+Folded into 0.3.3 release metadata.
 
 ## Source
 
-CHANGELOG Unreleased. docs/graphql-api.md namespace settings and per-resource
+CHANGELOG 0.3.3. docs/graphql-api.md namespace settings and per-resource
 DSL. spec/requests/graphql_resource_enabled_default_spec.rb.
+docs/changelogs/20261012113500_release-0-3-3.md.

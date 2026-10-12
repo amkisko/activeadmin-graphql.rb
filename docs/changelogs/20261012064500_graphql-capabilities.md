@@ -23,11 +23,13 @@ combined with `graphql_capabilities` (dynamic visibility required).
 
 ## Next
 
-Policy payloads listing field capabilities. Mutation input attribute maps.
-Transport gates if subscriptions ship later.
+Folded into 0.3.3 release metadata. Follow-ons remain: policy payloads listing
+field capabilities, mutation input attribute maps, and transport gates if
+subscriptions ship later.
 
 ## Source
 
-RFC 0008. docs/graphql-api.md. spec/unit/capability_spec.rb,
+RFC 0008. CHANGELOG 0.3.3. docs/graphql-api.md. spec/unit/capability_spec.rb,
 spec/unit/capability_dsl_spec.rb, spec/requests/graphql_capabilities_spec.rb,
 spec/requests/graphql_capabilities_edge_spec.rb.
+docs/changelogs/20261012113500_release-0-3-3.md.

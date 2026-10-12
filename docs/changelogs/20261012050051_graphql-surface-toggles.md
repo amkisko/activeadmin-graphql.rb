@@ -29,13 +29,12 @@ empty-Query rejection and registered_resource gating by queries.
 
 ## Next
 
-Consumers that want a narrow support-style API can combine
-`graphql_resource_enabled_default = false` with policies / registered_resource /
-belongs_to off, then enable only the surfaces each resource needs.
+Folded into 0.3.3 release metadata.
 
 ## Source
 
-CHANGELOG Unreleased. docs/graphql-api.md.
+CHANGELOG 0.3.3. docs/graphql-api.md.
 spec/requests/graphql_surface_toggles_spec.rb.
 spec/requests/graphql_policy_surface_spec.rb.
 spec/requests/graphql_query_surface_contract_spec.rb.
+docs/changelogs/20261012113500_release-0-3-3.md.

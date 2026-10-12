@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.3.3 (2026-10-12)
+
 - Add `graphql { capability ... }` and namespace `graphql_capabilities` so one named grant can gate many fields, queries, and mutations (RFC 0008).
 - Apply `fields:` capabilities to wired `belongs_to` associations; reject unknown capability field names and named visibility `profiles:` combined with `graphql_capabilities`.
 - Add namespace setting `graphql_resource_enabled_default` (`true` by default) and `graphql { enable! }` so apps can opt resources into the schema instead of opting out with `disable!`.
