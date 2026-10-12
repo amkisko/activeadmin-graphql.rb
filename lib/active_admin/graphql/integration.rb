@@ -45,6 +45,8 @@ module ActiveAdmin
         ns.register :graphql_visibility, nil
         ns.register :graphql_visibility_profile, nil
         ns.register :graphql_schema_visible, nil
+        # Optional Proc +(context_hash) -> Enumerable+ of capability names (RFC 0008).
+        ns.register :graphql_capabilities, nil
         ns.register :graphql_max_complexity, 300
         ns.register :graphql_max_depth, 18
         ns.register :graphql_batch_action_max_ids, 5000

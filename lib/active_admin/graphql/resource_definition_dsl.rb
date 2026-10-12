@@ -4,12 +4,14 @@ require_relative "run_action_mutation_config"
 require_relative "run_action_mutation_dsl"
 require_relative "mutation_input_definition_dsl"
 require_relative "resource_surface_dsl"
+require_relative "resource_capability_dsl"
 
 module ActiveAdmin
   module GraphQL
     # DSL for +graphql do ... end+ inside +ActiveAdmin.register+.
     class ResourceDefinitionDSL
       include ResourceSurfaceDSL
+      include ResourceCapabilityDSL
 
       def initialize(config)
         @config = config

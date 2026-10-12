@@ -35,4 +35,7 @@ belongs_to off, then enable only the surfaces each resource needs.
 
 ## Source
 
-CHANGELOG Unreleased. docs/graphql-api.md. spec/requests/graphql_surface_toggles_spec.rb.
+CHANGELOG Unreleased. docs/graphql-api.md.
+spec/requests/graphql_surface_toggles_spec.rb.
+spec/requests/graphql_policy_surface_spec.rb.
+spec/requests/graphql_query_surface_contract_spec.rb.

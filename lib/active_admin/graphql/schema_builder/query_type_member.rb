@@ -19,6 +19,7 @@ module ActiveAdmin
                 field_name: singular,
                 resource: aa_res
               },
+              capability: aa_res.graphql_config.capability_for_query(:member),
               description: "Find #{model.name} by id (same scoping chain as REST +show+). Use +where+ or legacy +id+." do
               argument :where, find_type, required: false, camelize: false
               if ActiveAdmin::PrimaryKey.composite?(model)

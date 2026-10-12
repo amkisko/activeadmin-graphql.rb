@@ -21,6 +21,7 @@ module ActiveAdmin
           proc do
             field fname.to_sym, collection_payload_t, null: false, camelize: false,
               visibility: {kind: :mutation_collection_action, graphql_type_name: sb.send(:graphql_type_name_for, aa_res), resource: aa_res, field_name: fname, aggregate: true},
+              capability: aa_res.graphql_config.capability_for_mutation(:collection_action),
               description: "Invoke a +collection_action+ on #{aa_res.resource_name} by name (same scoping as REST +index+). Prefer per-action fields +#{plural}_collection_<action>+ for distinct inputs or return types." do
               argument :action, ::GraphQL::Types::String, required: true, camelize: false
               argument :params, [KeyValuePairInput], required: false, camelize: false,
@@ -42,6 +43,12 @@ module ActiveAdmin
               act = action.to_s
               unless allowed.include?(act)
                 raise ::GraphQL::ExecutionError, "Unknown collection action #{act.inspect} for #{plural}"
+              end
+              unless Capability.granted?(
+                context,
+                aa_res.graphql_config.capability_for_mutation(:"collection_#{act.tr("-", "_")}")
+              )
+                raise ::GraphQL::ExecutionError, "not authorized for collection action #{act}"
               end
 
               proxy = ResourceQueryProxy.new(
@@ -79,6 +86,7 @@ module ActiveAdmin
                 field_name: field_name,
                 collection_action: action_name
               },
+              capability: aa_res.graphql_config.capability_for_mutation(:"collection_#{action_name.tr("-", "_")}"),
               description: "Invoke +collection_action+ #{action_name} on #{aa_res.resource_name} (same scoping as REST +index+)." do
               argument :params, [KeyValuePairInput], required: false, camelize: false,
                 description: "Extra request params as flat key/value pairs."

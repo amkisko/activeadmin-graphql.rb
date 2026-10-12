@@ -14,6 +14,7 @@ module ActiveAdmin
           proc do
             field fname.to_sym, type_c, null: true, camelize: false,
               visibility: {kind: :mutation_update, graphql_type_name: sb.send(:graphql_type_name_for, aa_res), resource: aa_res},
+              capability: aa_res.graphql_config.capability_for_mutation(:update),
               description: "Update #{model.name}" do
               argument :where, find_type, required: true, camelize: false
               argument :input, update_input, required: true, camelize: false
@@ -80,6 +81,7 @@ module ActiveAdmin
             [delete_name, destroy_name].each do |fname|
               field fname.to_sym, ::GraphQL::Types::Boolean, null: false, camelize: false,
                 visibility: {kind: :mutation_delete, graphql_type_name: type_basename, resource: aa_res},
+                capability: aa_res.graphql_config.capability_for_mutation(:destroy),
                 description: "Destroy #{model.name}" do
                 argument :where, find_type, required: true, camelize: false
               end

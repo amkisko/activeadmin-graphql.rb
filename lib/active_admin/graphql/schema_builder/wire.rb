@@ -20,7 +20,9 @@ module ActiveAdmin
               field_name = ref.name.to_sym
               fk = ref.foreign_key.to_s
 
-              type_class.field field_name, @object_types[target], null: true, camelize: false
+              type_class.field field_name, @object_types[target], null: true, camelize: false,
+                authorize: false,
+                capability: aa_res.graphql_config.capability_for_field(field_name)
 
               type_class.define_method(field_name) do
                 fk_val = object.public_send(fk)

@@ -26,6 +26,7 @@ module ActiveAdmin
           end
 
           wire_belongs_to_associations if @namespace.graphql_belongs_to_associations_enabled
+          verify_field_capabilities!
 
           active_resources.each do |aa_res|
             model = aa_res.resource_class
@@ -105,6 +106,25 @@ module ActiveAdmin
         def namespace_page_graphql_fields?
           @namespace.resources.any? do |resource|
             resource.is_a?(ActiveAdmin::Page) && resource.graphql_fields.any?
+          end
+        end
+
+        def verify_field_capabilities!
+          @object_types.each do |model, type_class|
+            aa_res = @aa_by_model[model]
+            next unless aa_res
+
+            declared = aa_res.graphql_config.field_capabilities.keys
+            next if declared.empty?
+
+            present = type_class.own_fields.keys.map { |name| name.to_s.to_sym }
+            unknown = declared - present
+            next if unknown.empty?
+
+            raise ActiveAdmin::DependencyError,
+              "GraphQL capability fields #{unknown.map(&:inspect).join(", ")} are not on " \
+              "#{type_class.graphql_name} (resource #{aa_res.resource_name}). " \
+              "Use a generated attribute, belongs_to association, or configure field name."
           end
         end
       end

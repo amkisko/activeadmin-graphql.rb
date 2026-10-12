@@ -65,8 +65,7 @@ Each namespace inherits these options (defaults in parentheses):
 * `graphql_run_actions_enabled_default` — seed for batch/member/collection
   action mutations (`true` by default).
 * `graphql_policies_enabled` — publish `activeadmin_policies` query fields and
-  allow per-object policy fields (`true` by default). Schema build fails if this
-  leaves `Query` with no fields and no other query surface is enabled.
+  allow per-object policy fields (`true` by default).
 * `graphql_policies_enabled_default` — seed for per-resource `policies_enabled`
   (`true` by default). Use `enable_policies!` / `disable_policies!` per resource.
 * `graphql_policy_adapter` — class that builds `activeadmin_policies` payloads
@@ -104,6 +103,11 @@ Each namespace inherits these options (defaults in parentheses):
   default `context[:visibility_profile]` for each HTTP request (symbols accepted).
 * `graphql_schema_visible` — optional `Proc` `(context, meta) -> Boolean` when
   `graphql_visibility` is enabled; see Schema visibility below.
+* `graphql_capabilities` — optional `Proc` `(context) -> Enumerable` of capability
+  names for the request (RFC 0008). Normalized into `context[:capabilities]`.
+  Cannot be combined with named `graphql_visibility` `profiles:`; schema build
+  forces `dynamic: true` and omits `visibility_profile` from the request context
+  so introspection uses the live capability set.
 * `graphql_configure_schema` — `Proc` receiving the schema class after build
   (extensions, extra types, and so on).
 
@@ -241,21 +245,82 @@ actions are allowed and applies the optional `graphql_policy_*` hooks. Assign a
 subclass that implements `policy_set` (and optionally `include_resource?`) to
 replace the payload builder.
 
+### Capabilities (RFC 0008)
+
+Associate many object fields, queries, and mutations with one named capability
+inside `graphql do`. The same capability name can cover a mixed set of members:
+
+```ruby
+ActiveAdmin.register Post do
+  graphql do
+    capability :pii do
+      fields :body
+    end
+
+    capability :editor do
+      fields :title
+      queries :index, :show
+      mutations :create, :update, :destroy
+    end
+
+    capability :publish, member_actions: %i[publish]
+  end
+end
+```
+
+Kwargs (`fields:`, `queries:`, `mutations:`, `member_actions:`,
+`batch_actions:`, `collection_actions:`) work without a block. Query aliases:
+`index` / `list` → collection, `show` → member. Mutation alias: `delete` →
+`destroy`. Run-action sugar builds keys like `member_publish`.
+
+Grant capabilities per request with `graphql_capabilities`. Map OAuth scopes or
+roles there; the gem stores a symbol set on `context[:capabilities]`:
+
+```ruby
+admin.graphql_capabilities = lambda { |ctx|
+  Array(ctx[:current_user]&.oauth_scopes)
+}
+```
+
+A gated member fails closed when the capability is missing from that set:
+resolve returns null for the field (graphql-ruby unauthorized field). Enable
+`graphql_visibility` so introspection and validation also omit ungated members.
+`fields:` applies to generated attributes and wired `belongs_to` associations.
+Unknown field names raise at schema build. Capabilities do not replace the
+authorization adapter.
+
+Custom `SchemaField` definitions may pass `capability: :name` the same way.
+Do not use named visibility `profiles:` together with `graphql_capabilities`
+(cached profile context ignores per-request grants).
+
 ## Schema overview
 
-The `Query` type includes one Relay-style connection field per resource route
-(for example `posts`), plus a singular field for a single record (for example
-`post`). Optional `graphql_field` entries on `register_page` appear here too,
-plus `registered_resource` (returning the `ActiveAdminRegisteredResource` union)
-when at least one resource is exposed.
+With the default surface flags (`true`), the `Query` type includes one
+Relay-style connection field per resource route (for example `posts`), plus a
+singular field for a single record (for example `post`). Optional
+`graphql_field` entries on `register_page` appear here too, plus
+`registered_resource` (returning the `ActiveAdminRegisteredResource` union)
+when at least one queryable resource exists.
+
+List and show fields require per-resource `queries_enabled` (seeded from
+`graphql_queries_enabled_default`). Turning queries off still leaves the object
+type available for mutations. `registered_resource` and the union also require
+`graphql_registered_resource_enabled`. Policy preflight fields require
+`graphql_policies_enabled`. Schema build fails when `Query` would have no
+fields: no list/show, no policies, no `registered_resource`, and no page
+`graphql_field`.
 
 Every resource object type implements the `ActiveAdminResource` interface
 (`id: ID!`) so clients can share fragments or rely on a common shape.
+Non-polymorphic `belongs_to` fields between registered types are wired when
+`graphql_belongs_to_associations_enabled` is true.
 
 The `Mutation` type is present when at least one operation exists: per-resource
-`create_*`, `update_*`, and `delete_*` when those controller actions exist, plus
-`*_batch_action`, `*_member_action`, and `*_collection_action` fields when the
-resource defines the corresponding batch, member, or collection actions.
+`create_*`, `update_*`, and `delete_*` when those controller actions exist and
+`mutations_enabled` is true, plus `*_batch_action`, `*_member_action`, and
+`*_collection_action` fields when the resource defines the corresponding batch,
+member, or collection actions and `run_actions_enabled` is true. Both flags are
+seeded from the matching namespace defaults.
 
 Object type names default to the model name (for example `Post`). Typed input
 objects use assignable columns (see the per-resource section below):

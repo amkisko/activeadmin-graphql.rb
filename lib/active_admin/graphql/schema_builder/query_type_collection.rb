@@ -34,6 +34,7 @@ module ActiveAdmin
                 field_name: plural_route,
                 resource: aa_res
               },
+              capability: aa_res.graphql_config.capability_for_query(:collection),
               description: "Paginated list of #{model.name} (#{aa_res.resource_name.human}); " \
                 "pass +filter+ or legacy +q+ / +scope+ / +order+ (Ransack +q+ matches the JSON index param). " \
                 "Nested resources require the parent foreign key (same as REST route params)." do

@@ -48,6 +48,6 @@ Informational: RFC 0002 (positioning).
 Standards Track, Stable: RFC 0003 (HTTP endpoint), RFC 0004 (schema and DSL), RFC 0005 (authorization and filters).
 
 Standards Track, Proposed: RFC 0006 (mutation permit_params), RFC 0007
-(GraphQL resource identity DSL).
+(GraphQL resource identity DSL), RFC 0008 (GraphQL capabilities).
 
 A public API, CLI, file, or protocol change needs a new Standards Track RFC.

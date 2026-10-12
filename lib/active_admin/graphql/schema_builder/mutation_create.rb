@@ -13,6 +13,7 @@ module ActiveAdmin
           proc do
             field fname.to_sym, type_c, null: true, camelize: false,
               visibility: {kind: :mutation_create, graphql_type_name: sb.send(:graphql_type_name_for, aa_res), resource: aa_res},
+              capability: aa_res.graphql_config.capability_for_mutation(:create),
               description: "Create #{model.name}" do
               argument :input, create_input, required: true, camelize: false
             end

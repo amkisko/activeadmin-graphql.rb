@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Add `graphql { capability ... }` and namespace `graphql_capabilities` so one named grant can gate many fields, queries, and mutations (RFC 0008).
+- Apply `fields:` capabilities to wired `belongs_to` associations; reject unknown capability field names and named visibility `profiles:` combined with `graphql_capabilities`.
 - Add namespace setting `graphql_resource_enabled_default` (`true` by default) and `graphql { enable! }` so apps can opt resources into the schema instead of opting out with `disable!`.
 - Add namespace toggles for `registered_resource` and `belongs_to` wiring (`graphql_registered_resource_enabled`, `graphql_belongs_to_associations_enabled`; both `true` by default).
 - Add `graphql_policies_enabled` / `graphql_policies_enabled_default` for policy field publishing and per-resource seeds, plus `graphql_policy_adapter` (default `ActiveAdmin::GraphQL::PolicyAdapter`) for payload construction.

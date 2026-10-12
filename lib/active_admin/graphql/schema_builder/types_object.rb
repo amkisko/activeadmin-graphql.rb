@@ -113,7 +113,14 @@ module ActiveAdmin
             next unless col
 
             gql_t = graphql_scalar_for_column(aa_res, model, col)
-            type_class.field(name.to_sym, gql_t, null: true, camelize: false, authorize: false)
+            type_class.field(
+              name.to_sym,
+              gql_t,
+              null: true,
+              camelize: false,
+              authorize: false,
+              capability: aa_res.graphql_config.capability_for_field(name)
+            )
 
             type_class.define_method(name.to_sym) { object.public_send(name) }
           end

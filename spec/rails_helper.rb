@@ -37,6 +37,7 @@ ActiveAdmin.application.authentication_method = false
 ActiveAdmin.application.current_user_method = false
 
 require_relative "support/active_admin_integration_spec_helper"
+require_relative "support/graphql_capabilities_request_helper"
 require_relative "support/graphql_deny_post_authorization_adapter"
 require_relative "support/graphql_deny_user_authorization_adapter"
 
@@ -47,4 +48,5 @@ RSpec.configure do |config|
 
   config.include Devise::Test::IntegrationHelpers, type: :request
   config.include ActiveAdminIntegrationSpecHelper
+  config.include GraphQLCapabilitiesRequestHelper, type: :request
 end

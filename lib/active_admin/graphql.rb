@@ -68,6 +68,7 @@ module ActiveAdmin
       def require_active_admin_graphql_components!
         %w[
           graphql/resource_interface
+          graphql/capability
           graphql/schema_field
           graphql/auth_context
           graphql/record_source

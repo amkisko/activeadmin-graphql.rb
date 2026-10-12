@@ -15,6 +15,7 @@ module ActiveAdmin
           proc do
             field fname.to_sym, batch_payload_t, null: false, camelize: false,
               visibility: {kind: :mutation_batch_action, graphql_type_name: sb.send(:graphql_type_name_for, aa_res), resource: aa_res, field_name: fname},
+              capability: aa_res.graphql_config.capability_for_mutation(:batch_action),
               description: "Run a batch action registered on #{aa_res.resource_name} (+batch_action+ DSL), " \
                     "same as the index batch UI (+collection_selection+ / +batch_action_inputs+)." do
               argument :batch_action, ::GraphQL::Types::String, required: true, camelize: false
@@ -38,6 +39,12 @@ module ActiveAdmin
               ba = batch_action.to_s
               unless allowed.include?(ba)
                 raise ::GraphQL::ExecutionError, "Unknown batch_action #{ba.inspect} for #{plural}"
+              end
+              unless Capability.granted?(
+                context,
+                aa_res.graphql_config.capability_for_mutation(:"batch_#{ba.tr("-", "_")}")
+              )
+                raise ::GraphQL::ExecutionError, "not authorized for batch action #{ba}"
               end
 
               max_ids = ns.graphql_batch_action_max_ids

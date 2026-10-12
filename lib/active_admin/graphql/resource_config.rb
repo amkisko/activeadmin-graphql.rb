@@ -2,11 +2,14 @@
 
 require_relative "run_action_mutation_config"
 require_relative "mutation_input_config"
+require_relative "resource_capability_maps"
 
 module ActiveAdmin
   module GraphQL
     # Per-resource GraphQL options set via +graphql+ in +ActiveAdmin.register+.
     class ResourceConfig
+      include ResourceCapabilityMaps
+
       attr_accessor :enabled
       attr_accessor :queries_enabled
       attr_accessor :mutations_enabled

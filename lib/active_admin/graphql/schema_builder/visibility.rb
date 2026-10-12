@@ -10,14 +10,29 @@ module ActiveAdmin
           vis = @namespace.graphql_visibility
           return if vis.nil?
 
-          if vis == true
-            schema.use(::GraphQL::Schema::Visibility)
-          elsif vis.is_a?(Hash)
-            schema.use(::GraphQL::Schema::Visibility, **vis.symbolize_keys)
-          else
-            raise ActiveAdmin::DependencyError,
-              "namespace graphql_visibility must be nil, true, or a Hash of GraphQL::Schema::Visibility options"
+          options =
+            case vis
+            when true
+              {}
+            when Hash
+              vis.symbolize_keys
+            else
+              raise ActiveAdmin::DependencyError,
+                "namespace graphql_visibility must be nil, true, or a Hash of GraphQL::Schema::Visibility options"
+            end
+
+          if @namespace.graphql_capabilities.respond_to?(:call)
+            profiles = options[:profiles]
+            if profiles.respond_to?(:any?) && profiles.any?
+              raise ActiveAdmin::DependencyError,
+                "graphql_capabilities cannot be combined with named GraphQL visibility profiles " \
+                "(named profiles cache a fixed context and ignore per-request capabilities). " \
+                "Omit profiles: and use dynamic visibility, or drop graphql_capabilities."
+            end
+            options = options.merge(dynamic: true)
           end
+
+          schema.use(::GraphQL::Schema::Visibility, **options)
         end
 
         def attach_registered_resource_union_visibility!(union_class)

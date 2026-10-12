@@ -51,16 +51,31 @@ module ActiveAdmin
 
     def graphql_context
       ns = active_admin_namespace
-      {
+      context = {
         auth: ActiveAdmin::GraphQL::AuthContext.new(
           user: current_active_admin_user,
           namespace: ns
         ),
         namespace: ns,
         request: request,
-        current_user: current_active_admin_user,
-        visibility_profile: graphql_visibility_profile_for(ns)
-      }.compact
+        current_user: current_active_admin_user
+      }
+      # Named visibility profiles cache a fixed context; per-request capabilities
+      # need the live request context (dynamic visibility). Skip the profile key.
+      unless ns.graphql_capabilities.respond_to?(:call)
+        profile = graphql_visibility_profile_for(ns)
+        context[:visibility_profile] = profile if profile
+      end
+      capabilities = graphql_capabilities_for(ns, context)
+      context[:capabilities] = capabilities unless capabilities.nil?
+      context
+    end
+
+    def graphql_capabilities_for(ns, context)
+      hook = ns.graphql_capabilities
+      return nil unless hook.respond_to?(:call)
+
+      ActiveAdmin::GraphQL::Capability.normalize_set(hook.call(context))
     end
 
     def graphql_visibility_profile_for(ns)
