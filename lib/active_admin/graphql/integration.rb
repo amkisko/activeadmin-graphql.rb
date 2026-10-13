@@ -26,6 +26,12 @@ module ActiveAdmin
 
       def register_namespace_settings!
         ns = ActiveAdmin::NamespaceSettings
+        register_surface_namespace_settings!(ns)
+        register_capability_namespace_settings!(ns)
+        register_limit_namespace_settings!(ns)
+      end
+
+      def register_surface_namespace_settings!(ns)
         ns.register :graphql, false
         # true preserves 0.3.x: every ActiveRecord resource is in the schema once the namespace endpoint is on.
         # Set false for opt-in per resource (empty graphql block or enable!).
@@ -45,6 +51,9 @@ module ActiveAdmin
         ns.register :graphql_visibility, nil
         ns.register :graphql_visibility_profile, nil
         ns.register :graphql_schema_visible, nil
+      end
+
+      def register_capability_namespace_settings!(ns)
         # Optional Proc +(context_hash) -> Enumerable+ of capability names (RFC 0008).
         ns.register :graphql_capabilities, nil
         # RFC 0009: default field capability mode (:omit or :null).
@@ -59,6 +68,9 @@ module ActiveAdmin
         ns.register :graphql_member_action_capability_default, nil
         ns.register :graphql_batch_action_capability_default, nil
         ns.register :graphql_collection_action_capability_default, nil
+      end
+
+      def register_limit_namespace_settings!(ns)
         ns.register :graphql_max_complexity, 300
         ns.register :graphql_max_depth, 18
         ns.register :graphql_batch_action_max_ids, 5000

@@ -75,13 +75,13 @@ RSpec.describe "ActiveAdmin GraphQL confirm, dry_run, and run_action_field", typ
   end
 
   context "when using RunActionField.define with preview" do
+    let(:resolve_calls) { [0] }
+
     around do |example|
       ns = ActiveAdmin.application.namespaces[:admin]
       previous = ns.graphql_configure_schema
-      resolve_calls = [0]
-      @resolve_calls = resolve_calls
+      calls = resolve_calls
       ns.graphql_configure_schema = lambda { |schema|
-        calls = resolve_calls
         ActiveAdmin::GraphQL::RunActionField.define(
           schema.mutation,
           :create_batch,
@@ -92,7 +92,7 @@ RSpec.describe "ActiveAdmin GraphQL confirm, dry_run, and run_action_field", typ
           argument :q, ::GraphQL::Types::String, required: true, camelize: false
 
           preview do |q:, **|
-            q == "ok" ? ok("would_run:create_batch") : refuse("not_ready")
+            (q == "ok") ? ok("would_run:create_batch") : refuse("not_ready")
           end
 
           resolve do |q:, **|
@@ -122,7 +122,7 @@ RSpec.describe "ActiveAdmin GraphQL confirm, dry_run, and run_action_field", typ
       expect(response).to have_http_status(:ok)
       expect(data["errors"]).to be_nil
       expect(data.dig("data", "create_batch", "body")).to eq("would_run:create_batch")
-      expect(@resolve_calls[0]).to eq(0)
+      expect(resolve_calls[0]).to eq(0)
     end
 
     it "returns refused preview without calling resolve" do
@@ -136,7 +136,7 @@ RSpec.describe "ActiveAdmin GraphQL confirm, dry_run, and run_action_field", typ
       expect(data["errors"]).to be_nil
       expect(data.dig("data", "create_batch", "ok")).to be(false)
       expect(data.dig("data", "create_batch", "body")).to eq("not_ready")
-      expect(@resolve_calls[0]).to eq(0)
+      expect(resolve_calls[0]).to eq(0)
     end
 
     it "calls resolve when preview allows and confirm is true" do
@@ -149,7 +149,7 @@ RSpec.describe "ActiveAdmin GraphQL confirm, dry_run, and run_action_field", typ
       expect(response).to have_http_status(:ok)
       expect(data["errors"]).to be_nil
       expect(data.dig("data", "create_batch", "body")).to eq("ran:ok")
-      expect(@resolve_calls[0]).to eq(1)
+      expect(resolve_calls[0]).to eq(1)
     end
   end
 end

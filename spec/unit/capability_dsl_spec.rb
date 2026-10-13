@@ -43,4 +43,3 @@ RSpec.describe ActiveAdmin::GraphQL::ResourceDefinitionDSL do
     expect(config.capability_mode_for_field(:body)).to eq(:null)
   end
 end
-
