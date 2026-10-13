@@ -2,10 +2,14 @@
 
 module ActiveAdmin
   module GraphQL
-    # Capability → member maps on {ResourceConfig} (RFC 0008).
+    # Capability → member maps on {ResourceConfig} (RFC 0008, RFC 0009).
     module ResourceCapabilityMaps
       def field_capabilities
         @field_capabilities ||= {}
+      end
+
+      def field_capability_modes
+        @field_capability_modes ||= {}
       end
 
       def query_capabilities
@@ -20,6 +24,10 @@ module ActiveAdmin
         field_capabilities[name.to_sym]
       end
 
+      def capability_mode_for_field(name)
+        field_capability_modes[name.to_sym]
+      end
+
       def capability_for_query(kind)
         query_capabilities[kind.to_sym]
       end
@@ -28,8 +36,18 @@ module ActiveAdmin
         mutation_capabilities[kind.to_sym]
       end
 
-      def assign_field_capabilities!(capability_name, names)
+      def assign_field_capabilities!(capability_name, names, mode: nil)
         assign_capabilities!(field_capabilities, capability_name, names, label: "field")
+        return if mode.nil?
+
+        resolved = mode.to_sym
+        unless %i[omit null].include?(resolved)
+          raise ArgumentError, "capability mode must be :omit or :null, got #{mode.inspect}"
+        end
+
+        names.flatten.each do |name|
+          field_capability_modes[name.to_sym] = resolved
+        end
       end
 
       def assign_query_capabilities!(capability_name, names)

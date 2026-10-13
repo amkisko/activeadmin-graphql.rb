@@ -4,7 +4,7 @@ require_relative "capability_definition_dsl"
 
 module ActiveAdmin
   module GraphQL
-    # +capability+ entry on {ResourceDefinitionDSL} (RFC 0008).
+    # +capability+ entry on {ResourceDefinitionDSL} (RFC 0008, RFC 0009).
     module ResourceCapabilityDSL
       def capability(
         name,
@@ -14,10 +14,11 @@ module ActiveAdmin
         member_actions: nil,
         batch_actions: nil,
         collection_actions: nil,
+        mode: nil,
         &block
       )
-        body = CapabilityDefinitionDSL.new(@config, name)
-        body.fields(*fields) if fields
+        body = CapabilityDefinitionDSL.new(@config, name, mode: mode)
+        body.fields(*fields, mode: mode) if fields
         body.queries(*queries) if queries
         body.mutations(*mutations) if mutations
         body.member_actions(*member_actions) if member_actions

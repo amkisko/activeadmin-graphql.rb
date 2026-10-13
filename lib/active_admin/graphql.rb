@@ -69,6 +69,8 @@ module ActiveAdmin
         %w[
           graphql/resource_interface
           graphql/capability
+          graphql/run_action_preview
+          graphql/run_action_control_extension
           graphql/schema_field
           graphql/auth_context
           graphql/record_source
@@ -77,6 +79,11 @@ module ActiveAdmin
           graphql/run_action_payload
           graphql/run_action_mutation_config
           graphql/run_action_mutation_dsl
+          graphql/run_action_field
+          graphql/member_action_dry_run
+          graphql/run_action_capability
+          graphql/member_action_capability
+          graphql/collection_query_policy
           graphql/key_value_pair_input
           graphql/policy_adapter
           graphql/policy_set_cache

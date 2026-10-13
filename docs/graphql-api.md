@@ -108,6 +108,22 @@ Each namespace inherits these options (defaults in parentheses):
   Cannot be combined with named `graphql_visibility` `profiles:`; schema build
   forces `dynamic: true` and omits `visibility_profile` from the request context
   so introspection uses the live capability set.
+* `graphql_field_capability_mode_default` — `:omit` or `:null` when a field has a
+  capability but no per-field mode (RFC 0009). Default `:omit`.
+* `graphql_field_visible` — optional `Proc` `(context, meta) -> Boolean` to omit
+  fields after capability checks (RFC 0009). Meta includes `graphql_type_name`,
+  `field_name`, and `resource` when known.
+* `graphql_run_action_audit` — optional `Proc` `(context, meta) -> void` after
+  member-action dry-run, refused preview, or completed run (RFC 0010).
+* `graphql_collection_query_policy` — optional `Proc` `(context, meta) -> void`
+  at the start of collection resolve (RFC 0011). Meta includes `aa_resource`,
+  `q`, `scope`, `order`, and `filter`.
+* `graphql_member_action_capability_default` — optional capability symbol applied
+  to member-action mutation fields when the resource map has no entry (RFC 0012).
+* `graphql_batch_action_capability_default` — same for the aggregate batch-action
+  field and per-action authorize checks (RFC 0012).
+* `graphql_collection_action_capability_default` — same for collection-action
+  mutation fields (RFC 0012).
 * `graphql_configure_schema` — `Proc` receiving the schema class after build
   (extensions, extra types, and so on).
 
@@ -284,14 +300,27 @@ admin.graphql_capabilities = lambda { |ctx|
 
 A gated member fails closed when the capability is missing from that set:
 resolve returns null for the field (graphql-ruby unauthorized field). Enable
-`graphql_visibility` so introspection and validation also omit ungated members.
+`graphql_visibility` so introspection and validation also omit ungated members
+when the field mode is `:omit` (default). Use `capability_mode: :null` (or
+`capability :pii, fields: %i[body], mode: :null`) so the field stays in the
+schema and resolves to `null` without the grant (RFC 0009).
+
 `fields:` applies to generated attributes and wired `belongs_to` associations.
 Unknown field names raise at schema build. Capabilities do not replace the
 authorization adapter.
 
-Custom `SchemaField` definitions may pass `capability: :name` the same way.
-Do not use named visibility `profiles:` together with `graphql_capabilities`
-(cached profile context ignores per-request grants).
+Custom `SchemaField` definitions may pass `capability: :name` and
+`capability_mode: :null` the same way. Set `graphql_field_visible` for a second
+omit gate (for example a request allowlist). Do not use named visibility
+`profiles:` together with `graphql_capabilities` (cached profile context ignores
+per-request grants).
+
+Collection list fields may call a host `graphql_collection_query_policy`. The
+helper `ActiveAdmin::GraphQL::CollectionQueryPolicy.require_visible_fields!`
+rejects Ransack `q` keys for hidden fields and requires capabilities from the
+resource field map by default (needed for `capability_mode: :null` columns).
+Optional `field_grants` overrides inference; `infer_field_grants: false` turns
+it off (RFC 0011).
 
 ## Schema overview
 
@@ -572,8 +601,12 @@ graphql do
     type(Members::MemberRunPayload)
   end
 
-  member_action_mutation(:send_invoice) do
+  member_action_mutation(:send_invoice, dry_run: true, capability: :support_act) do
     type(Members::SendInvoicePayload)
+    preview do |record, **|
+      record.may_send_invoice? ? ok("would_run:send_invoice:#{record.id}") : refuse("not_ready")
+    end
+    extra_params :note
     arguments do
       argument :note, GraphQL::Types::String, required: false, camelize: false
     end
@@ -583,7 +616,21 @@ end
 
 Call the named field as `posts_member_send_invoice(id: "...", note: "…")`. Extra
 arguments are merged with `params` for the controller and passed as keyword args
-to a custom `resolve` block.
+to a custom `resolve` block. With `dry_run: true`, the field gains a Boolean
+`dry_run` argument: preview runs first, dry-run returns without
+`run_member_action`, and a refused preview never runs the action (RFC 0010).
+`extra_params` allowlists which GraphQL kwargs forward into the AA request
+(`id` cannot be rebound). `capability:` on batch / member / collection mutation
+DSL overrides the resource map; otherwise the matching
+`graphql_*_action_capability_default` applies (RFC 0012).
+
+Custom mutations in `graphql_configure_schema` may use
+`ActiveAdmin::GraphQL::RunActionField.define` (or `SchemaField` keywords
+`dry_run:`, `confirm:`, `preview:`) for confirm/dry-run wiring (RFC 0013). When
+`confirm` is required and both flags are false, the field returns
+`body: "confirm_required"`. When `preview` is set, dry-run and refused preview
+return without calling `resolve`; without `preview`, dry-run still calls
+`resolve` with `dry_run: true`.
 
 With no symbol argument, `member_action_mutation { … }` configures only the
 aggregate `posts_member_action` field. With a symbol, it configures the

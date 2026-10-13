@@ -36,4 +36,11 @@ RSpec.describe ActiveAdmin::GraphQL::ResourceDefinitionDSL do
       dsl.capability :b, fields: %i[title]
     }.to raise_error(ArgumentError, /title/)
   end
+
+  it "stores field capability_mode from capability kwargs" do
+    dsl.capability :pii, fields: %i[body], mode: :null
+    expect(config.capability_for_field(:body)).to eq(:pii)
+    expect(config.capability_mode_for_field(:body)).to eq(:null)
+  end
 end
+

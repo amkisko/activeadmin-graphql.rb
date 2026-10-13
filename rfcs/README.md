@@ -48,6 +48,9 @@ Informational: RFC 0002 (positioning).
 Standards Track, Stable: RFC 0003 (HTTP endpoint), RFC 0004 (schema and DSL), RFC 0005 (authorization and filters).
 
 Standards Track, Proposed: RFC 0006 (mutation permit_params), RFC 0007
-(GraphQL resource identity DSL), RFC 0008 (GraphQL capabilities).
+(GraphQL resource identity DSL), RFC 0008 (GraphQL capabilities), RFC 0009
+(field capability mode and field visibility hook), RFC 0010 (member action
+dry-run and preview), RFC 0011 (collection query policy), RFC 0012 (default
+run-action capabilities), RFC 0013 (confirm, dry-run, preview, and run_action_field).
 
 A public API, CLI, file, or protocol change needs a new Standards Track RFC.

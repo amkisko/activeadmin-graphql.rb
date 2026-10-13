@@ -103,21 +103,32 @@ module ActiveAdmin
       end
 
       # Pair +type+ and +resolve+ for +posts_batch_action+ (graphql-ruby-style block).
-      def batch_action_mutation(&block)
-        RunActionMutationDSL.new(@config.batch_run_action).instance_exec(&block)
+      # +capability:+ overrides the resource map / namespace default for the aggregate field (RFC 0012).
+      def batch_action_mutation(capability: nil, &block)
+        cfg = @config.batch_run_action
+        cfg.capability = capability.to_sym if capability
+        RunActionMutationDSL.new(cfg).instance_exec(&block) if block
+        cfg
       end
 
       # With no name: configures the aggregate +posts_member_action(action: …)+ field.
       # With a symbol/string: configures +posts_member_<action>+ (one field per +member_action+), so each
       # action can use its own +type+, +resolve+, +arguments+, and GraphQL inputs.
-      def member_action_mutation(name = nil, &block)
+      # +dry_run:+ / +capability:+ apply to named per-action fields (RFC 0010, RFC 0012).
+      def member_action_mutation(name = nil, dry_run: false, capability: nil, &block)
         cfg = name.nil? ? @config.member_run_action : @config.member_action_mutation_for(name)
-        RunActionMutationDSL.new(cfg).instance_exec(&block)
+        cfg.dry_run = true if dry_run
+        cfg.capability = capability.to_sym if capability
+        RunActionMutationDSL.new(cfg).instance_exec(&block) if block
+        cfg
       end
 
-      def collection_action_mutation(name = nil, &block)
+      def collection_action_mutation(name = nil, dry_run: false, capability: nil, &block)
         cfg = name.nil? ? @config.collection_run_action : @config.collection_action_mutation_for(name)
-        RunActionMutationDSL.new(cfg).instance_exec(&block)
+        cfg.dry_run = true if dry_run
+        cfg.capability = capability.to_sym if capability
+        RunActionMutationDSL.new(cfg).instance_exec(&block) if block
+        cfg
       end
 
       # Default return type for all run-action fields unless a kind-specific +type+ is set inside

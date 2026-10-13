@@ -2,7 +2,7 @@
 
 module ActiveAdmin
   module GraphQL
-    # Block body for +capability :name do ... end+ (RFC 0008).
+    # Block body for +capability :name do ... end+ (RFC 0008, RFC 0009).
     class CapabilityDefinitionDSL
       QUERY_ALIASES = {
         index: :collection,
@@ -14,13 +14,18 @@ module ActiveAdmin
         delete: :destroy
       }.freeze
 
-      def initialize(config, capability_name)
+      def initialize(config, capability_name, mode: nil)
         @config = config
         @capability_name = capability_name.to_sym
+        @mode = mode
       end
 
-      def fields(*names)
-        @config.assign_field_capabilities!(@capability_name, names)
+      def fields(*names, mode: nil)
+        @config.assign_field_capabilities!(
+          @capability_name,
+          names,
+          mode: mode.nil? ? @mode : mode
+        )
       end
 
       def queries(*names)

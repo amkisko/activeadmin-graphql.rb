@@ -22,7 +22,8 @@ module ActiveAdmin
 
               type_class.field field_name, @object_types[target], null: true, camelize: false,
                 authorize: false,
-                capability: aa_res.graphql_config.capability_for_field(field_name)
+                capability: aa_res.graphql_config.capability_for_field(field_name),
+                capability_mode: aa_res.graphql_config.capability_mode_for_field(field_name)
 
               type_class.define_method(field_name) do
                 fk_val = object.public_send(fk)

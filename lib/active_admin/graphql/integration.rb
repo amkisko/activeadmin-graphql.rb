@@ -47,6 +47,18 @@ module ActiveAdmin
         ns.register :graphql_schema_visible, nil
         # Optional Proc +(context_hash) -> Enumerable+ of capability names (RFC 0008).
         ns.register :graphql_capabilities, nil
+        # RFC 0009: default field capability mode (:omit or :null).
+        ns.register :graphql_field_capability_mode_default, :omit
+        # RFC 0009: optional Proc +(context, meta) -> Boolean+ to omit object/root fields.
+        ns.register :graphql_field_visible, nil
+        # RFC 0010: optional Proc +(context, meta) -> void+ after run-action outcomes.
+        ns.register :graphql_run_action_audit, nil
+        # RFC 0011: optional Proc +(context, meta) -> void+ at collection resolve start.
+        ns.register :graphql_collection_query_policy, nil
+        # RFC 0012: optional default capabilities for run-action mutation fields.
+        ns.register :graphql_member_action_capability_default, nil
+        ns.register :graphql_batch_action_capability_default, nil
+        ns.register :graphql_collection_action_capability_default, nil
         ns.register :graphql_max_complexity, 300
         ns.register :graphql_max_depth, 18
         ns.register :graphql_batch_action_max_ids, 5000

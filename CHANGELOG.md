@@ -2,6 +2,22 @@
 
 ## Unreleased
 
+- Add field `capability_mode` (`:omit` / `:null`) and namespace hooks
+  `graphql_field_capability_mode_default` and `graphql_field_visible` (RFC 0009).
+- Add `member_action_mutation … dry_run: true` with `preview`, `extra_params`,
+  `ok` / `refuse`, and optional `graphql_run_action_audit` (RFC 0010).
+- Add `graphql_collection_query_policy` and
+  `CollectionQueryPolicy.require_visible_fields!`, inferring filter grants from
+  resource field capabilities by default (RFC 0011).
+- Add `graphql_member_action_capability_default`,
+  `graphql_batch_action_capability_default`,
+  `graphql_collection_action_capability_default`, and `capability:` on
+  `batch_action_mutation` / `member_action_mutation` /
+  `collection_action_mutation` (RFC 0012).
+- Add `dry_run:` / `confirm:` / `preview:` on `SchemaField`, preview
+  short-circuit via `RunActionControlExtension`, and
+  `RunActionField.define` DSL sugar for custom run-action fields (RFC 0013).
+
 ## 0.3.3 (2026-10-12)
 
 - Add `graphql { capability ... }` and namespace `graphql_capabilities` so one named grant can gate many fields, queries, and mutations (RFC 0008).

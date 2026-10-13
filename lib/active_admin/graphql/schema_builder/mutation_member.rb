@@ -21,7 +21,7 @@ module ActiveAdmin
           proc do
             field fname.to_sym, member_payload_t, null: false, camelize: false,
               visibility: {kind: :mutation_member_action, graphql_type_name: sb.send(:graphql_type_name_for, aa_res), resource: aa_res, field_name: fname, aggregate: true},
-              capability: aa_res.graphql_config.capability_for_mutation(:member_action),
+              capability: MemberActionCapability.resolve(ns, aa_res),
               description: "Invoke a +member_action+ on #{aa_res.resource_name} by name (same scoping as REST +show+). Prefer per-action fields +#{plural}_member_<action>+ for distinct inputs or return types." do
               argument :action, ::GraphQL::Types::String, required: true, camelize: false
               argument :id, ::GraphQL::Types::ID, required: true, camelize: false
@@ -47,7 +47,7 @@ module ActiveAdmin
               end
               unless Capability.granted?(
                 context,
-                aa_res.graphql_config.capability_for_mutation(:"member_#{act.tr("-", "_")}")
+                MemberActionCapability.resolve(ns, aa_res, act)
               )
                 raise ::GraphQL::ExecutionError, "not authorized for member action #{act}"
               end
@@ -78,6 +78,7 @@ module ActiveAdmin
           fname = field_name.to_sym
           per_cfg = aa_res.graphql_config.member_action_mutations[action_name]
           member_payload_t = member_action_return_type(aa_res, action_name)
+          capability = MemberActionCapability.resolve(ns, aa_res, action_name)
 
           proc do
             field fname, member_payload_t, null: false, camelize: false,
@@ -88,11 +89,15 @@ module ActiveAdmin
                 field_name: field_name,
                 member_action: action_name
               },
-              capability: aa_res.graphql_config.capability_for_mutation(:"member_#{action_name.tr("-", "_")}"),
+              capability: capability,
               description: "Invoke +member_action+ #{action_name} on #{aa_res.resource_name} (same scoping as REST +show+)." do
               argument :id, ::GraphQL::Types::ID, required: true, camelize: false
               argument :params, [KeyValuePairInput], required: false, camelize: false,
                 description: "Extra request params as flat key/value pairs."
+              if per_cfg&.dry_run
+                argument :dry_run, ::GraphQL::Types::Boolean, required: false, default_value: false, camelize: false,
+                  description: "When true, preview without performing the member action."
+              end
               if (btc = aa_res.belongs_to_config)
                 argument btc.to_param.to_sym, ::GraphQL::Types::ID, required: btc.required?, camelize: false
               end

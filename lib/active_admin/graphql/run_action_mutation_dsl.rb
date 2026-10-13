@@ -31,6 +31,25 @@ module ActiveAdmin
       def authorize(value = true)
         @mutation_config.authorize = !!value
       end
+
+      # Preview before run / dry-run short-circuit (RFC 0010). Block receives the member record.
+      def preview(&block)
+        @mutation_config.preview_proc = block
+      end
+
+      # Allowlisted GraphQL kwargs forwarded into the ActiveAdmin request (never +id+).
+      def extra_params(*names)
+        @mutation_config.extra_param_keys = names.flatten.map(&:to_s)
+      end
+
+      def ok(body, status: 200)
+        RunActionPreview.new.ok(body, status: status)
+      end
+
+      def refuse(body, status: 422)
+        RunActionPreview.new.refuse(body, status: status)
+      end
     end
   end
 end
+

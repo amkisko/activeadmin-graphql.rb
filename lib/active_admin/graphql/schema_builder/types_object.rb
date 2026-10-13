@@ -119,7 +119,8 @@ module ActiveAdmin
               null: true,
               camelize: false,
               authorize: false,
-              capability: aa_res.graphql_config.capability_for_field(name)
+              capability: aa_res.graphql_config.capability_for_field(name),
+              capability_mode: aa_res.graphql_config.capability_mode_for_field(name)
             )
 
             type_class.define_method(name.to_sym) { object.public_send(name) }
