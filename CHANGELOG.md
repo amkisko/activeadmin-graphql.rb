@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.4.0 (2026-10-13)
 
 - Add field `capability_mode` (`:omit` / `:null`) and namespace hooks
   `graphql_field_capability_mode_default` and `graphql_field_visible` (RFC 0009).
