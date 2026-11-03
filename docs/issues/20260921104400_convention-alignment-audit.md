@@ -2,7 +2,7 @@
 
 ## Participants
 
-Andrei Makarov
+Andrei Makarov (@amkisko)
 
 ## Decisions
 
@@ -22,12 +22,6 @@ GraphqlController logs namespace, operation name, and error_count without the qu
 
 ResourceMethods lives in lib/active_admin/graphql/resource_methods.rb.
 
-## Effects
-
-First pass used create_only. Second pass replaced it after a convention check against graphql-ruby 2.6.7, Rails 8.1 nested_attributes update_only, upsert_all update_only, and ActiveAdmin 3.5.2 permit_params.
-
-bundle exec rspec spec/requests/graphql_mutation_permit_params_spec.rb: 8 examples, 0 failures after the rename.
-
 ## Findings
 
 Severity high. Confidence high. Location SchemaBuilder TypesInputs default create and update inputs. Why it matters: extra-field write of created_at on create, observed in spec/requests/graphql_mutation_permit_params_spec.rb. Evidence kind observed. Security disposition confirmed. Smallest credible fix: graphql { permit_params :title, :body } in the host app. Deeper fix: omit created_at and updated_at from default mutation inputs in a later RFC, matching ActiveAdmin generators/boilerplate.rb assignable_attributes.
@@ -45,6 +39,12 @@ Severity low. Confidence high. Location ResourceDefinitionDSL#only versus Active
 Severity low. Confidence high. Location GraphqlController, no request correlation log. Why it matters: host logs may not show which GraphQL operation failed. Evidence kind observed absence of log calls in graphql_controller.rb. Smallest credible fix: none required of a library; host can log. Deeper fix: optional around_action.
 
 Severity low. Confidence high. Location lib/active_admin/graphql/integration.rb line count 176. Why it matters: file is above the 150 line preference. Evidence kind observed. Smallest credible fix: extract ResourceMethods. Not done this pass.
+
+## Effects
+
+First pass used create_only. Second pass replaced it after a convention check against graphql-ruby 2.6.7, Rails 8.1 nested_attributes update_only, upsert_all update_only, and ActiveAdmin 3.5.2 permit_params.
+
+bundle exec rspec spec/requests/graphql_mutation_permit_params_spec.rb: 8 examples, 0 failures after the rename.
 
 ## Next
 

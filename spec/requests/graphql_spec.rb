@@ -311,7 +311,7 @@ RSpec.describe "ActiveAdmin GraphQL", type: :request do
       expect(Post.find_by(title: "Nope")).to be_nil
     end
 
-    it "returns a GraphQL error for update mutations" do
+    it "returns not found for update mutations when the record is forbidden" do
       post = Post.create!(title: "Before", body: "y")
       data = gql!(<<~GQL)
         mutation {
@@ -323,8 +323,47 @@ RSpec.describe "ActiveAdmin GraphQL", type: :request do
 
       expect(response).to have_http_status(:ok)
       expect(data["errors"]).to be_an(Array)
-      expect(data.dig("errors", 0, "message")).to include("not authorized")
+      expect(data.dig("errors", 0, "message")).to eq("not found")
       expect(post.reload.title).to eq("Before")
+    end
+  end
+
+  context "when the authorization adapter denies Post instances only" do
+    around do |example|
+      ns = ActiveAdmin.application.namespaces[:admin]
+      previous = ns.authorization_adapter
+      ns.authorization_adapter = ActiveAdmin::GraphQLSpecSupport::DenyPostRecordAuthorizationAdapter
+      example.run
+    ensure
+      ns.authorization_adapter = previous
+    end
+
+    it "returns null for singular queries on a forbidden record" do
+      post = Post.create!(title: "Hidden show", body: "z")
+      data = gql!(<<~GQL)
+        {
+          post(id: "#{post.id}") {
+            id
+          }
+        }
+      GQL
+
+      expect(response).to have_http_status(:ok)
+      expect(data["errors"]).to be_nil
+      expect(data.dig("data", "post")).to be_nil
+    end
+
+    it "returns not found for destroy on a forbidden record" do
+      post = Post.create!(title: "Hidden destroy", body: "z")
+      data = gql!(<<~GQL)
+        mutation {
+          delete_post(where: { id: "#{post.id}" })
+        }
+      GQL
+
+      expect(response).to have_http_status(:ok)
+      expect(data.dig("errors", 0, "message")).to eq("not found")
+      expect(Post.find_by(id: post.id)).to eq(post)
     end
   end
 
@@ -484,6 +523,44 @@ RSpec.describe "ActiveAdmin GraphQL", type: :request do
       expect(response).to have_http_status(:ok)
       expect(data["errors"]).to be_nil
       expect(data.dig("data", "create_post", "title")).to eq("T-hook")
+    end
+  end
+
+  context "graphql resolve_create hook with instance create deny" do
+    around do |example|
+      ns = ActiveAdmin.application.namespaces[:admin]
+      previous = ns.authorization_adapter
+      ns.authorization_adapter = ActiveAdmin::GraphQLSpecSupport::DenyPostRecordAuthorizationAdapter
+      with_resources_during(example) do
+        ActiveAdmin.application.namespaces[:admin].graphql = true
+        ActiveAdmin.register(Post) do
+          scope :all, default: true
+          graphql do
+            resolve_create do |proxy:, attributes:, **|
+              r = proxy.build_new(attributes.merge("title" => "#{attributes["title"]}-hook-deny"))
+              raise ::GraphQL::ExecutionError, r.errors.full_messages.to_sentence unless r.save
+
+              r
+            end
+          end
+        end
+      end
+    ensure
+      ns.authorization_adapter = previous
+    end
+
+    it "rolls back a hook persist when instance create is denied" do
+      data = gql!(<<~GQL)
+        mutation {
+          create_post(input: { title: "DeniedHook", body: "b" }) {
+            title
+          }
+        }
+      GQL
+
+      expect(response).to have_http_status(:ok)
+      expect(data.dig("errors", 0, "message")).to include("not authorized")
+      expect(Post.find_by(title: "DeniedHook-hook-deny")).to be_nil
     end
   end
 

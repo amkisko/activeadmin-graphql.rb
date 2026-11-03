@@ -2,7 +2,7 @@
 
 ## Participants
 
-Andrei Makarov
+Andrei Makarov (@amkisko)
 
 ## Decisions
 
@@ -34,8 +34,8 @@ tested here.
 ## Next
 
 Keep federation out of scope until a host names a concrete subgraph contract
-and an RFC. Prefer documenting “single-schema admin API; federation
-unsupported” if readers keep asking.
+and an RFC. Prefer documenting "single-schema admin API; federation
+unsupported" if readers keep asking.
 
 ## Source
 

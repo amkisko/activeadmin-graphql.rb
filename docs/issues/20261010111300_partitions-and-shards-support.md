@@ -2,7 +2,7 @@
 
 ## Participants
 
-Andrei Makarov
+Andrei Makarov (@amkisko)
 
 ## Decisions
 
@@ -23,7 +23,7 @@ as a product feature and untested in this gem.
 Searched lib, docs, rfcs, and spec for partition, shard, connects_to,
 multiple database, tenant routing, writing_role, and reading_role.
 
-Product code has no shard or partition API. Hits for “shard” and “partition”
+Product code has no shard or partition API. Hits for "shard" and "partition"
 are Polyrun/CI test parallelism and agent IO-fault vocabulary, not databases.
 
 Dummy app uses one SQLite database (`spec/dummy/config/database.yml`). No
@@ -41,7 +41,7 @@ the Rails/ActiveAdmin request boundary (middleware, `connected_to`, custom
 finder). Do not invent gem DSL until a concrete host failure and RFC name the
 contract (shard key in GraphQL args, role switching, cross-shard batch limits).
 
-Optional later: document “unsupported / inherited only” next to identity in
+Optional later: document "unsupported / inherited only" next to identity in
 `docs/graphql-api.md` when a reader asks again.
 
 ## Source

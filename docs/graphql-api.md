@@ -31,11 +31,11 @@ want:
 ActiveAdmin.setup do |config|
   config.namespace :admin do |admin|
     admin.graphql = true
-    # Optional — default is "graphql", i.e. POST /admin/graphql
+    # Optional - default is "graphql", i.e. POST /admin/graphql
     # admin.graphql_path = "graphql"
-    # Optional — set false so only resources with a graphql block enter the schema
+    # Optional - set false so only resources with a graphql block enter the schema
     # admin.graphql_resource_enabled_default = false
-    # Optional — trim always-on surfaces for a narrow API
+    # Optional - trim always-on surfaces for a narrow API
     # admin.graphql_policies_enabled = false
     # admin.graphql_registered_resource_enabled = false
     # admin.graphql_belongs_to_associations_enabled = false
@@ -50,87 +50,87 @@ Run `bin/rails active_admin:install` or reload routes if needed so
 
 Each namespace inherits these options (defaults in parentheses):
 
-* `graphql` — set to `true` to mount the endpoint (`false` by default).
-* `graphql_resource_enabled_default` — whether each registered ActiveRecord
+* `graphql` - set to `true` to mount the endpoint (`false` by default).
+* `graphql_resource_enabled_default` - whether each registered ActiveRecord
   resource is included in the schema without a `graphql` block (`true` by
   default, matching 0.3.x). Set to `false` for opt-in: only resources that call
   `graphql { }` (or `graphql { enable! }`) appear in the schema. `disable!`
   still omits a resource.
-* `graphql_queries_enabled_default` — seed for per-resource read fields
+* `graphql_queries_enabled_default` - seed for per-resource read fields
   (`true` by default): named list/show fields and membership in
   `registered_resource` / `ActiveAdminRegisteredResource`. Set `false` and use
   `enable_queries!` for opt-in reads. Object types may still exist for mutations.
-* `graphql_mutations_enabled_default` — seed for per-resource CRUD mutations
+* `graphql_mutations_enabled_default` - seed for per-resource CRUD mutations
   (`true` by default). Set `false` and use `enable_mutations!` for opt-in writes.
-* `graphql_run_actions_enabled_default` — seed for batch/member/collection
+* `graphql_run_actions_enabled_default` - seed for batch/member/collection
   action mutations (`true` by default).
-* `graphql_policies_enabled` — publish `activeadmin_policies` query fields and
+* `graphql_policies_enabled` - publish `activeadmin_policies` query fields and
   allow per-object policy fields (`true` by default).
-* `graphql_policies_enabled_default` — seed for per-resource `policies_enabled`
+* `graphql_policies_enabled_default` - seed for per-resource `policies_enabled`
   (`true` by default). Use `enable_policies!` / `disable_policies!` per resource.
-* `graphql_policy_adapter` — class that builds `activeadmin_policies` payloads
+* `graphql_policy_adapter` - class that builds `activeadmin_policies` payloads
   (`ActiveAdmin::GraphQL::PolicyAdapter` by default). Set a subclass (or constant
   `String`) to replace payload logic; the default adapter still honors
   `graphql_policy_actions` / `graphql_policy_action_mapper` /
   `graphql_policy_extra` / `graphql_policy_transform`.
-* `graphql_registered_resource_enabled` — include `registered_resource` and the
+* `graphql_registered_resource_enabled` - include `registered_resource` and the
   `ActiveAdminRegisteredResource` union when at least one queryable resource
   exists (`true` by default).
-* `graphql_belongs_to_associations_enabled` — wire non-polymorphic `belongs_to`
+* `graphql_belongs_to_associations_enabled` - wire non-polymorphic `belongs_to`
   fields between registered resource types (`true` by default).
-* `graphql_path` — path segment under the namespace mount (`"graphql"`).
-* `graphql_multiplex_max` — maximum operations per multiplexed JSON array
+* `graphql_path` - path segment under the namespace mount (`"graphql"`).
+* `graphql_multiplex_max` - maximum operations per multiplexed JSON array
   request (`20`).
-* `graphql_max_complexity` — passed to graphql-ruby `max_complexity` (`300` by
+* `graphql_max_complexity` - passed to graphql-ruby `max_complexity` (`300` by
   default; set a higher value if legitimate queries are rejected). Set to
   `nil` to disable the limit.
-* `graphql_max_depth` — passed to `max_depth` (`18` by default). Set to `nil`
+* `graphql_max_depth` - passed to `max_depth` (`18` by default). Set to `nil`
   to disable.
-* `graphql_batch_action_max_ids` — maximum length of the `ids` argument on
+* `graphql_batch_action_max_ids` - maximum length of the `ids` argument on
   `*_batch_action` mutations (`5000` by default; set `0` to disable the cap).
-* `graphql_default_page_size` / `graphql_default_max_page_size` — schema
+* `graphql_default_page_size` / `graphql_default_max_page_size` - schema
   connection defaults (`25` / `100`); needed for graphql-ruby complexity scoring
   on connection fields when `max_complexity` is enabled.
-* `graphql_dataloader` — graphql-ruby dataloader plugin (`nil` = use
+* `graphql_dataloader` - graphql-ruby dataloader plugin (`nil` = use
   `GraphQL::Dataloader`). Set to `GraphQL::Dataloader::AsyncDataloader` when
   the [`async` gem](https://github.com/socketry/async) is loaded if you want
   parallel I/O from custom `GraphQL::Dataloader::Source` `#fetch` methods.
-* `graphql_visibility` — `nil` by default (no graphql-ruby visibility plugin).
+* `graphql_visibility` - `nil` by default (no graphql-ruby visibility plugin).
   Set to `true` to use [`GraphQL::Schema::Visibility`](https://graphql-ruby.org/schema/visibility.html)
   with default options, or pass a `Hash` of visibility options (`profiles:`,
-  `dynamic:`, `preload:`, `migration_errors:`, …).
-* `graphql_visibility_profile` — when using named visibility profiles, optional
+  `dynamic:`, `preload:`, `migration_errors:`, ...).
+* `graphql_visibility_profile` - when using named visibility profiles, optional
   default `context[:visibility_profile]` for each HTTP request (symbols accepted).
-* `graphql_schema_visible` — optional `Proc` `(context, meta) -> Boolean` when
+* `graphql_schema_visible` - optional `Proc` `(context, meta) -> Boolean` when
   `graphql_visibility` is enabled; see Schema visibility below.
-* `graphql_capabilities` — optional `Proc` `(context) -> Enumerable` of capability
+* `graphql_capabilities` - optional `Proc` `(context) -> Enumerable` of capability
   names for the request (RFC 0008). Normalized into `context[:capabilities]`.
   Cannot be combined with named `graphql_visibility` `profiles:`; schema build
   forces `dynamic: true` and omits `visibility_profile` from the request context
   so introspection uses the live capability set.
-* `graphql_field_capability_mode_default` — `:omit` or `:null` when a field has a
+* `graphql_field_capability_mode_default` - `:omit` or `:null` when a field has a
   capability but no per-field mode (RFC 0009). Default `:omit`.
-* `graphql_field_visible` — optional `Proc` `(context, meta) -> Boolean` to omit
+* `graphql_field_visible` - optional `Proc` `(context, meta) -> Boolean` to omit
   fields after capability checks (RFC 0009). Meta includes `graphql_type_name`,
   `field_name`, and `resource` when known.
-* `graphql_run_action_audit` — optional `Proc` `(context, meta) -> void` after
+* `graphql_run_action_audit` - optional `Proc` `(context, meta) -> void` after
   member-action dry-run, refused preview, or completed run (RFC 0010).
-* `graphql_collection_query_policy` — optional `Proc` `(context, meta) -> void`
+* `graphql_collection_query_policy` - optional `Proc` `(context, meta) -> void`
   at the start of collection resolve (RFC 0011). Meta includes `aa_resource`,
   `q`, `scope`, `order`, and `filter`.
-* `graphql_member_action_capability_default` — optional capability symbol applied
+* `graphql_member_action_capability_default` - optional capability symbol applied
   to member-action mutation fields when the resource map has no entry (RFC 0012).
-* `graphql_batch_action_capability_default` — same for the aggregate batch-action
+* `graphql_batch_action_capability_default` - same for the aggregate batch-action
   field and per-action authorize checks (RFC 0012).
-* `graphql_collection_action_capability_default` — same for collection-action
+* `graphql_collection_action_capability_default` - same for collection-action
   mutation fields (RFC 0012).
-* `graphql_configure_schema` — `Proc` receiving the schema class after build
+* `graphql_configure_schema` - `Proc` receiving the schema class after build
   (extensions, extra types, and so on).
 
 ### GraphQL::Dataloader
 
 The namespace schema calls `schema.use` with the configured dataloader (see
-`graphql_dataloader` above). [graphql-ruby’s
+`graphql_dataloader` above). [graphql-ruby's
 dataloader](https://graphql-ruby.org/dataloader/overview.html) batches external
 work across sibling fields using Fibers; each HTTP request gets its own
 dataloader instance (available as `context.dataloader` inside resolvers).
@@ -152,12 +152,12 @@ Global / Relay-style IDs are not generated by Active Admin itself.
 ### Schema visibility (`GraphQL::Schema::Visibility`)
 
 When `graphql_visibility` is set, the namespace schema calls
-`schema.use(GraphQL::Schema::Visibility, …)` so introspection and validation
+`schema.use(GraphQL::Schema::Visibility, ...)` so introspection and validation
 respect [visibility](https://graphql-ruby.org/schema/visibility.html).
 
 Set `graphql_schema_visible` to a proc that receives the GraphQL `context`
 and a `meta` hash and returns truthy to keep the member visible. The hash
-always includes `:kind`, and often `:graphql_type_name` (the resource’s GraphQL
+always includes `:kind`, and often `:graphql_type_name` (the resource's GraphQL
 basename), `:resource` (`ActiveAdmin::Resource`), and other keys:
 
 | `kind` | Meaning |
@@ -165,29 +165,29 @@ basename), `:resource` (`ActiveAdmin::Resource`), and other keys:
 | `:resource_interface` | `ActiveAdminResource` interface |
 | `:resource_object` | Resource object type |
 | `:resource_enum` | Rails enum type; `meta` includes `:column` |
-| `:input_object` | Create/update/where/list-filter input; `meta` includes `:role` (`:create_input`, …) |
+| `:input_object` | Create/update/where/list-filter input; `meta` includes `:role` (`:create_input`, ...) |
 | `:registered_resource_union` | `ActiveAdminRegisteredResource` union |
 | `:run_action_payload` | Batch/member/collection action payload type |
 | `:query_registered_resource` | `registered_resource` query field |
 | `:query_collection_field` / `:query_member_field` | Resource list/detail fields; `meta` includes `:field_name` |
 | `:query_page_field` | Custom `register_page` field; `meta` includes `:page` |
-| `:mutation_create`, `:mutation_update`, `:mutation_delete`, … | CRUD and action mutations |
+| `:mutation_create`, `:mutation_update`, `:mutation_delete`, ... | CRUD and action mutations |
 
 Root `Query` / `Mutation` fields are defined with
 `ActiveAdmin::GraphQL::SchemaField`, which supports a `visibility:` keyword:
 a metadata `Hash` (same shape as the `meta` argument above) for
 `graphql_schema_visible`, not a graphql-ruby core option. Resource `graphql`
 `configure` blocks use that field class too, so custom fields may pass
-`visibility: { … }` when you want the hook to run.
+`visibility: { ... }` when you want the hook to run.
 
 You can also subclass your own `GraphQL::Schema::Object` / `Field` types in
-`graphql_configure_schema` and implement `visible?` there; Active Admin’s
+`graphql_configure_schema` and implement `visible?` there; Active Admin's
 helpers call `super` first so those implementations compose.
 
 Interfaces and unions: graphql-ruby may keep an interface or union visible
 when all members are hidden unless you return `false` from
 `graphql_schema_visible` for `:resource_interface` or `:registered_resource_union`
-(or implement `.visible?` on custom types). See graphql-ruby’s visibility migration
+(or implement `.visible?` on custom types). See graphql-ruby's visibility migration
 notes for edge cases.
 
 ## Making requests
@@ -200,11 +200,11 @@ Send JSON with `query` and optional `variables`. For
 be a JSON array of such objects; the size is limited by `graphql_multiplex_max`.
 
 Requests are handled by `ActiveAdmin::GraphqlController` (an engine controller,
-not a generated `Admin::…` subclass).
+not a generated `Admin::...` subclass).
 
 ### CSRF and cookie sessions
 
-`GraphqlController` uses Rails’ default CSRF protection
+`GraphqlController` uses Rails' default CSRF protection
 (`protect_from_forgery with: :exception`). Clients that rely on session cookies
 (for example a typical Devise session) must submit a valid CSRF token with each
 `POST`, such as the `authenticity_token` used by the HTML admin. API-style
@@ -251,6 +251,11 @@ resource model (`authorized?` with the model class, in the same way as
 collection queries). They then run the same controller actions and blocks as the
 UI, including any `authorize!` or `authorize_resource!` calls.
 
+When a record exists but instance-level read is denied, singular member and
+`registered_resource` queries return `null` (same shape as a missing id). Update
+and destroy mutations return the GraphQL error `not found` for the same case.
+Class-level denials still raise `not authorized ...`.
+
 See the ActiveAdmin guide [Authorization adapter](https://activeadmin.info/13-authorization-adapter) for adapter setup; the same rules apply to GraphQL.
 
 Policy preflight fields (`activeadmin_policies`, `activeadmin_policies_for`, and
@@ -286,7 +291,7 @@ end
 
 Kwargs (`fields:`, `queries:`, `mutations:`, `member_actions:`,
 `batch_actions:`, `collection_actions:`) work without a block. Query aliases:
-`index` / `list` → collection, `show` → member. Mutation alias: `delete` →
+`index` / `list` -> collection, `show` -> member. Mutation alias: `delete` ->
 `destroy`. Run-action sugar builds keys like `member_publish`.
 
 Grant capabilities per request with `graphql_capabilities`. Map OAuth scopes or
@@ -364,7 +369,7 @@ omit `created_at` and `updated_at`.
 GraphQL `id` always comes from `ActiveAdminResource` (`ID!`). An ActiveRecord
 `id` column is never added as a second field. When `self.primary_key` is blank
 but the model still has an `id` column (common for database views that project
-`… AS id`), that column supplies the GraphQL `id` value. When the model has
+`... AS id`), that column supplies the GraphQL `id` value. When the model has
 neither a primary key nor an `id` column, declare GraphQL identity on the
 resource (RFC 0007), set `self.primary_key` on the model, or omit the resource
 with `graphql { disable! }`. A single-column primary key named something other
@@ -384,7 +389,7 @@ end
 ```
 
 With `separator: ":"`, GraphQL `id` is `entry_type:entry_id:event_type`. Keep
-the model’s `def id` (if any) in the same shape so HTML and GraphQL share
+the model's `def id` (if any) in the same shape so HTML and GraphQL share
 member ids. Without `separator`, multi-column identity uses the same JSON
 object string as composite ActiveRecord primary keys.
 
@@ -393,19 +398,19 @@ object string as composite ActiveRecord primary keys.
 For models with `self.primary_key = [:book_code, :seq]` (and no separate `id`
 column), Active Admin treats GraphQL as follows:
 
-* `id` on the object type — JSON object string with all key columns in
+* `id` on the object type - JSON object string with all key columns in
   model order, for example `{"book_code":"CPK","seq":7}`. This is the GraphQL
   wire format. It is not the Rails form/URL underscore packing described in
   the Composite Primary Keys guide (`/books/2_25` with
   `params.extract_value(:id)`).
-* Readable fields — each primary-key column is also exposed as its own field
+* Readable fields - each primary-key column is also exposed as its own field
   (in addition to `id`) so clients can load scalars without parsing JSON.
-* `LibraryEditionWhereInput` (and similar) — either optional `id` (that JSON
+* `LibraryEditionWhereInput` (and similar) - either optional `id` (that JSON
   string) or every primary-key column; `id` remains required when there is
   only one key column.
-* Singular query field — pass the JSON `id`, pass `where`, or pass one
+* Singular query field - pass the JSON `id`, pass `where`, or pass one
   GraphQL argument per primary-key column.
-* Create mutations — composite key attributes stay included in create
+* Create mutations - composite key attributes stay included in create
   inputs (unlike single `id` tables, where the key is omitted from assignable
   attributes).
 
@@ -414,8 +419,8 @@ composite ids from `params[:id]` or from individual primary-key params. Stock
 ActiveAdmin 3.x only passes a single `params[:id]` into `find`; an ActiveAdmin
 fork (or patch) that implements composite-aware `find_resource` keeps the
 admin UI aligned with GraphQL. After decoding the GraphQL JSON `id`, the gem
-uses Rails’ array/tuple conventions for `Relation#find` and
-`where(primary_key => [tuple, …])` as in the guide.
+uses Rails' array/tuple conventions for `Relation#find` and
+`where(primary_key => [tuple, ...])` as in the guide.
 
 The gem ships `ActiveAdmin::PrimaryKey` when the core constant is missing
 (upstream). A fork may define `PrimaryKey` and extended `find_resource` in
@@ -428,18 +433,18 @@ Alignment notes versus the Rails guide:
 
 These align with REST index parameters where possible:
 
-* `filter` — optional `PostListFilterInput` with `scope`, `order`, `q` (Ransack
-  predicates as JSON — kept as JSON because predicate keys are open-ended), and the nested parent id when `belongs_to` applies.
-* `scope` — menu scope id (string); still accepted on the field for backward
+* `filter` - optional `PostListFilterInput` with `scope`, `order`, `q` (Ransack
+  predicates as JSON - kept as JSON because predicate keys are open-ended), and the nested parent id when `belongs_to` applies.
+* `scope` - menu scope id (string); still accepted on the field for backward
   compatibility.
-* `q` — Ransack predicates (JSON object).
-* `order` — index sort string (for example `id_desc`).
-* Parent foreign key — when the resource uses `belongs_to`, the parent param
+* `q` - Ransack predicates (JSON object).
+* `order` - index sort string (for example `id_desc`).
+* Parent foreign key - when the resource uses `belongs_to`, the parent param
   (for example `user_id`) stays available on the connection field as today.
 
 ### Singular query arguments
 
-* `where` — `PostWhereInput` with required `id` (single-key tables) or,
+* `where` - `PostWhereInput` with required `id` (single-key tables) or,
   for composite keys, `id` (JSON) and/or each key column; optional parent ids for
   nested resources.
 * Legacy `id` / parent arguments behave as before (composite models also accept
@@ -449,12 +454,12 @@ These align with REST index parameters where possible:
 
 Typical names for a `Post` resource:
 
-* `create_post(input: PostCreateInput!)` — attribute fields match assignable
+* `create_post(input: PostCreateInput!)` - attribute fields match assignable
   columns minus `created_at` / `updated_at` unless listed in `permit_params`
   (and the nested parent param when `belongs_to` is configured).
 * `update_post(where: PostWhereInput!, input: PostUpdateInput!)`
-* `delete_post(where: PostWhereInput!)` — kept for existing clients.
-* `destroy_post(where: PostWhereInput!)` — Rails / ActiveAdmin action name; same resolver as `delete_post`.
+* `delete_post(where: PostWhereInput!)` - kept for existing clients.
+* `destroy_post(where: PostWhereInput!)` - Rails / ActiveAdmin action name; same resolver as `delete_post`.
 
 Nested resources require the parent id on `where`, `input`, or list `filter`
 when the association is required.
@@ -465,39 +470,39 @@ If you are updating clients that targeted an older embedded GraphQL integration 
 
 * Rails enum GraphQL names use an `Enum` infix (for example `PostEnumStatus`, not `PostStatus`). Update persisted operations, codegen, and fragments to match; see Rails enum columns below.
 
-* CRUD mutations use typed `input` and `where` arguments (`PostCreateInput`, `PostWhereInput`, …), not a single loose `attributes` JSON object and bare `id` on update/delete. List/detail fields may use `where` / `filter` input objects; legacy scalar arguments on fields are unchanged where still exposed.
+* CRUD mutations use typed `input` and `where` arguments (`PostCreateInput`, `PostWhereInput`, ...), not a single loose `attributes` JSON object and bare `id` on update/delete. List/detail fields may use `where` / `filter` input objects; legacy scalar arguments on fields are unchanged where still exposed.
 
-* `registered_resource(path: …)`, batch `inputs`, and member/collection `params` use `[ActiveAdminKeyValuePair!]` (a list of `{ key, value }` strings), not arbitrary JSON objects. Express maps as list items; duplicate keys keep the last value. Ransack `q` (on list `filter` / field args) stays a JSON object.
+* `registered_resource(path: ...)`, batch `inputs`, and member/collection `params` use `[ActiveAdminKeyValuePair!]` (a list of `{ key, value }` strings), not arbitrary JSON objects. Express maps as list items; duplicate keys keep the last value. Ransack `q` (on list `filter` / field args) stays a JSON object.
 
-These rules match the current schema described in this guide. The core `activeadmin` gem’s `UPGRADING.md` may only mention them if you use a fork that references this extension.
+These rules match the current schema described in this guide. The core `activeadmin` gem's `UPGRADING.md` may only mention them if you use a fork that references this extension.
 
 ### `registered_resource` query
 
 `registered_resource(type_name: String!, id: ID!, path: [ActiveAdminKeyValuePair!])`
 returns `ActiveAdminRegisteredResource`, the union of all resource object types in
-the namespace. Pass nested parent route params as ordered `path: [{ key: "user_id", value: "1" }, …]`
+the namespace. Pass nested parent route params as ordered `path: [{ key: "user_id", value: "1" }, ...]`
 (same keys as REST path segments). Resolve with inline fragments on concrete types.
 
-`ActiveAdminKeyValuePair` is `{ key: String!, value: String! }` — flat strings only, like query/form fields.
+`ActiveAdminKeyValuePair` is `{ key: String!, value: String! }` - flat strings only, like query/form fields.
 
 ### Batch, member, and collection actions
 
 For a route key of `posts`, fields look like:
 
-* `posts_batch_action(batch_action: String!, ids: [ID!]!, inputs: [ActiveAdminKeyValuePair!], …)` —
+* `posts_batch_action(batch_action: String!, ids: [ID!]!, inputs: [ActiveAdminKeyValuePair!], ...)` -
   runs the registered batch action; `inputs` is converted to `batch_action_inputs` (flat key/value map)
   like the HTML form. Omitted when batch actions are disabled or none are registered.
-* `posts_member_action(action: String!, id: ID!, params: [ActiveAdminKeyValuePair!], …)` —
+* `posts_member_action(action: String!, id: ID!, params: [ActiveAdminKeyValuePair!], ...)` -
   aggregate field: pick the `member_action` by `action` string (same as today).
-* One GraphQL field per registered action — `{plural}_member_{action_name}` with
+* One GraphQL field per registered action - `{plural}_member_{action_name}` with
   underscores (e.g. `posts_member_publish`, `posts_member_append_title_bang`): same
   `id`, `params`, and parent ids as the aggregate field, without an `action:` argument.
-  Use `graphql { member_action_mutation(:publish) { … } }` to set return type,
-  `resolve`, and extra `arguments { … }` for that action only.
-* `posts_collection_action(action: String!, params: [ActiveAdminKeyValuePair!], …)` —
+  Use `graphql { member_action_mutation(:publish) { ... } }` to set return type,
+  `resolve`, and extra `arguments { ... }` for that action only.
+* `posts_collection_action(action: String!, params: [ActiveAdminKeyValuePair!], ...)` -
   aggregate collection actions by name.
 * Per collection action: `{plural}_collection_{action_name}` (e.g.
-  `posts_collection_posts_count`). Configure with `collection_action_mutation(:posts_count) { … }`.
+  `posts_collection_posts_count`). Configure with `collection_action_mutation(:posts_count) { ... }`.
 
 Action names are validated against registered definitions; arbitrary controller
 methods are not exposed.
@@ -541,27 +546,27 @@ ActiveAdmin.register Post do
 end
 ```
 
-* `enable!` — include this resource when `graphql_resource_enabled_default` is
+* `enable!` - include this resource when `graphql_resource_enabled_default` is
   `false`. An empty `graphql` block has the same effect.
-* `disable!` — resource is not included in Query or Mutation.
-* `enable_queries!` / `disable_queries!` — list/show fields and
+* `disable!` - resource is not included in Query or Mutation.
+* `enable_queries!` / `disable_queries!` - list/show fields and
   `registered_resource` membership for this resource.
-* `enable_mutations!` / `disable_mutations!` — create/update/delete mutations.
-* `enable_run_actions!` / `disable_run_actions!` — batch/member/collection
+* `enable_mutations!` / `disable_mutations!` - create/update/delete mutations.
+* `enable_run_actions!` / `disable_run_actions!` - batch/member/collection
   action mutations.
-* `enable_policies!` / `disable_policies!` — object `activeadmin_policies` and
+* `enable_policies!` / `disable_policies!` - object `activeadmin_policies` and
   inclusion in the `activeadmin_policies` resources matrix.
-* `identity` — declare GraphQL id columns (and optional `separator`, `encode`,
+* `identity` - declare GraphQL id columns (and optional `separator`, `encode`,
   `decode`) when the model has no ActiveRecord primary key and no `id` column
   (RFC 0007).
-* `type_name` (or `graphql_name`) — overrides the default GraphQL type name
+* `type_name` (or `graphql_name`) - overrides the default GraphQL type name
   derived from the model (object types, mutations, and Rails enum GraphQL
   types use this basename).
-* `only` / `except` (or `exclude`) — restrict columns on object types. These
+* `only` / `except` (or `exclude`) - restrict columns on object types. These
   names also cap mutation inputs. This is not ActiveAdmin `only:` / `except:`
   for controller actions (`action_item only: :show`). The primary key remains
   readable as `id`.
-* `permit_params` (or `permit`) — restrict create and update input keys without
+* `permit_params` (or `permit`) - restrict create and update input keys without
   hiding query fields, same name as ActiveAdmin HTML `permit_params`. Nested
   `create` / `update` blocks replace that shared list for one operation and
   may set `resolve`. Names outside `only` / `except` are dropped. A static HTML
@@ -569,7 +574,7 @@ end
   unset. A request-time HTML `permit_params` block is not copied. With no list
   set, mutation inputs omit `created_at` and `updated_at`. Empty `permit_params`
   yields an input with no column arguments.
-* `configure` — `field` and resolver methods are evaluated on the generated
+* `configure` - `field` and resolver methods are evaluated on the generated
   object type class.
 
 ### Run action return types (batch / member / collection mutations)
@@ -578,8 +583,8 @@ Return type and optional resolver for each kind live together on
 `ActiveAdmin::GraphQL::RunActionMutationConfig` (`payload_type`, `resolve_proc`),
 exposed through the DSL in a graphql-ruby-like way.
 
-Use a `GraphQL::Schema::Object` subclass — typically subclass
-`ActiveAdmin::GraphQL::RunActionPayload` — then add fields and resolver methods.
+Use a `GraphQL::Schema::Object` subclass - typically subclass
+`ActiveAdmin::GraphQL::RunActionPayload` - then add fields and resolver methods.
 The mutation object passed to field methods is always
 `RunActionPayload::Result` (`ok`, `status`, `location`, `body`).
 
@@ -614,7 +619,7 @@ graphql do
 end
 ```
 
-Call the named field as `posts_member_send_invoice(id: "...", note: "…")`. Extra
+Call the named field as `posts_member_send_invoice(id: "...", note: "...")`. Extra
 arguments are merged with `params` for the controller and passed as keyword args
 to a custom `resolve` block. With `dry_run: true`, the field gains a Boolean
 `dry_run` argument: preview runs first, dry-run returns without
@@ -632,7 +637,7 @@ Custom mutations in `graphql_configure_schema` may use
 return without calling `resolve`; without `preview`, dry-run still calls
 `resolve` with `dry_run: true`.
 
-With no symbol argument, `member_action_mutation { … }` configures only the
+With no symbol argument, `member_action_mutation { ... }` configures only the
 aggregate `posts_member_action` field. With a symbol, it configures the
 per-action field `posts_member_<name>`.
 
@@ -648,7 +653,7 @@ One-shot aliases (same underlying config):
 | `batch_action_run_action_payload_type(MyType)` | Same as `batch_action_mutation { type(MyType) }`. |
 | `member_action_run_action_payload_type(MyType)` | Same as `member_action_mutation { type(MyType) }`. |
 | `collection_action_run_action_payload_type(MyType)` | Same as `collection_action_mutation { type(MyType) }`. |
-| `resolve_batch_action { … }` | Same as `batch_action_mutation { resolve { … } }` (and likewise for member/collection). |
+| `resolve_batch_action { ... }` | Same as `batch_action_mutation { resolve { ... } }` (and likewise for member/collection). |
 
 Per-kind `type` wins over `run_action_payload_type`; any unset kind falls back
 to `run_action_payload_type`, then `ActiveAdminRunActionPayload`. Set
@@ -667,16 +672,16 @@ replace the Ruby body that loads data or runs a mutation (similar in spirit to
 overriding `find_resource` / `find_collection` rather than inventing new field
 names):
 
-| DSL method | Replaces default … |
+| DSL method | Replaces default ... |
 |------------|-------------------|
-| `resolve_index` (alias `resolve_collection`) | List connection resolver; must return an `ActiveRecord::Relation` (or compatible). Receives `proxy`, `context`, `auth`, `aa_resource`, `graph_params`, and the list field arguments (`filter`, `scope`, `q`, `order`, parent ids, …). |
+| `resolve_index` (alias `resolve_collection`) | List connection resolver; must return an `ActiveRecord::Relation` (or compatible). Receives `proxy`, `context`, `auth`, `aa_resource`, `graph_params`, and the list field arguments (`filter`, `scope`, `q`, `order`, parent ids, ...). |
 | `resolve_show` (alias `resolve_member`) | Singular field and `registered_resource` for this resource; must return a record or `nil`. Receives `proxy`, `id`, `graph_params`, and for the generated `post` field also `where` / `id_argument` when present. |
-| `resolve_create` | After class-level create authorization: build and persist. Receives `proxy`, `input`, `attributes` (assignable slice), `context`, `auth`, `aa_resource`. Must return the created record; instance-level `authorized?` runs afterward. |
+| `resolve_create` | After class-level create authorization: build and persist inside a nested transaction. Receives `proxy`, `input`, `attributes` (assignable slice), `context`, `auth`, `aa_resource`. Must return the created record; instance-level `authorized?` runs before the transaction commits, so a denied hook persist rolls back when the hook shared that transaction. |
 | `resolve_update` | After load and update authorization: apply changes. Receives `record`, `input`, `attributes`, plus `proxy`, `context`, `auth`, `aa_resource`. Must return the updated record. |
 | `resolve_destroy` | After destroy authorization: delete or archive. Receives `record`, `proxy`, `context`, `auth`, `aa_resource`. Default is `record.destroy!`. |
-| `resolve_batch_action` | Batch mutation; receives `batch_action`, `ids`, `inputs` (string-key `Hash` after converting GraphQL key/value list), `proxy`, … Default calls `ResourceQueryProxy#run_batch_action`. |
-| `resolve_member_action` | Member-action mutation; receives `action`, `id`, `params` (string-key `Hash`), `proxy`, … |
-| `resolve_collection_action` | Collection-action mutation; receives `action`, `params` (string-key `Hash`), `proxy`, … |
+| `resolve_batch_action` | Batch mutation; receives `batch_action`, `ids`, `inputs` (string-key `Hash` after converting GraphQL key/value list), `proxy`, ... Default calls `ResourceQueryProxy#run_batch_action`. |
+| `resolve_member_action` | Member-action mutation; receives `action`, `id`, `params` (string-key `Hash`), `proxy`, ... |
+| `resolve_collection_action` | Collection-action mutation; receives `action`, `params` (string-key `Hash`), `proxy`, ... |
 
 Standard authorization checks around each field or mutation still run; hooks
 are for customizing how data is fetched or saved, not for skipping policy.
@@ -688,16 +693,16 @@ exposed as GraphQL enums. Each enum type is named
 
 `{GraphQLTypeBasename}Enum{ColumnNameInPascalCase}`
 
-where `GraphQLTypeBasename` is the resource’s GraphQL type name (from `type_name`
+where `GraphQLTypeBasename` is the resource's GraphQL type name (from `type_name`
 or the model name), and `ColumnNameInPascalCase` is the database attribute in
-PascalCase (for example `notification_channel` → `NotificationChannel`).
+PascalCase (for example `notification_channel` -> `NotificationChannel`).
 
 Examples:
 
-* `User` + column `notification_channel` → `UserEnumNotificationChannel`
-* `UserNotification` + column `channel` → `UserNotificationEnumChannel`
+* `User` + column `notification_channel` -> `UserEnumNotificationChannel`
+* `UserNotification` + column `channel` -> `UserNotificationEnumChannel`
 
-Think of `PostEnumStatus` as the enum for `Post`’s `status` attribute, not as a
+Think of `PostEnumStatus` as the enum for `Post`'s `status` attribute, not as a
 single merged word like `PostStatus`. Putting `Enum` immediately after the
 resource basename (instead of a suffix such as `PostStatusEnum`) keeps the
 basename and column distinct when both are camelized. That avoids the duplicates

@@ -1,5 +1,9 @@
 # GraphQL identity DSL (RFC 0007)
 
+## Participants
+
+Andrei Makarov (@amkisko)
+
 ## Decisions
 
 Ship `graphql { identity *columns, separator:, encode:, decode: }` so resources

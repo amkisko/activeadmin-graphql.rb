@@ -26,7 +26,7 @@ end
 
 Bundler loads this gem as usual; that requires `graphql-ruby` and wires ActiveAdmin routing and DSL for GraphQL.
 
-Documentation: [docs/graphql-api.md](docs/graphql-api.md) covers the endpoint, schema, `graphql do … end`, authorization, composite PKs, visibility, and dataloaders. For an older GraphQL integration, see “Migrating GraphQL clients” in that guide (enum type names, typed mutation inputs, key/value lists vs JSON).
+Documentation: [docs/graphql-api.md](docs/graphql-api.md) covers the endpoint, schema, `graphql do ... end`, authorization, composite PKs, visibility, and dataloaders. For an older GraphQL integration, see "Migrating GraphQL clients" in that guide (enum type names, typed mutation inputs, key/value lists vs JSON).
 
 ## Development
 
@@ -63,4 +63,4 @@ No local ActiveAdmin checkout is required; the dummy app depends on the publishe
 
 ## License
 
-MIT — see [LICENSE.md](LICENSE.md).
+MIT - see [LICENSE.md](LICENSE.md).

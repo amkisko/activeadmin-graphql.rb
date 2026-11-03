@@ -4,7 +4,7 @@ Full audit: recon, security, freshness, ecosystem. Depth reached: full for hot-p
 
 ## Participants
 
-Andrei Makarov
+Andrei Makarov (@amkisko)
 
 ## Decisions
 
@@ -19,18 +19,6 @@ Keep sqlite3 2.9.6 and json 2.21.2. Those pins already match the 2026-09-07 advi
 Stay on ActiveAdmin 3.5.2. It is the latest stable on RubyGems. 4.0.0.beta23 (2026-09-20) is prerelease and pulls arbre ~> 2.0 and inherited_resources ~> 2.0.
 
 Do not reverse the 2026-09-17 choice to keep bundle-audit off test.yml. The on-demand workflow remains the gate. Makefile still has no audit target that mirrors that workflow.
-
-## Effects
-
-ruby-advisory-db update: 1245 advisories, last updated 2026-09-16 10:35:37 -0400, commit 44784c295391577f25d198a9205eae4ba73ec4da.
-
-bundle-audit check failed on all four lockfiles with GHSA-rmxg-5p3r-j6hh (graphql 2.6.7, solution >= 2.6.9). No other scanner matches.
-
-bundle outdated --strict on the root Gemfile listed 16 outdated specs. graphql 2.6.7 vs 2.6.10 is the only outdated hot-path direct runtime gem.
-
-Libyears from Gemfile.lock vs RubyGems stable (compact-graph band: about 10 low, about 100 medium): 124 locked packages, 27 outdated, total lag 17.94 years, average 0.145 years per package, 6 packages one major behind (arbre, inherited_resources, json, marcel, diff-lcs, rubocop-capybara). Coverage floor in config/polyrun_coverage.yml is 85 percent line. No upgrade spike was run this pass.
-
-No person-facing surface in this pass.
 
 ## Findings
 
@@ -51,6 +39,18 @@ Tier hot path transitive. Kind security. Severity low. Confidence high. Package 
 Tier dev/test. Kind freshness. Severity low. Confidence high. json 2.21.2 vs 3.0.2 blocked by rubocop json ~> 2.3. sqlite3 2.9.6 is latest and matches GHSA-mwm8-39rw-8826. rails 8.1.3.1 and 7.2.3.2 match appraisal floors and are current on those lines. appraisal 2.5.0 equals latest (2023-07-14); stale but current.
 
 Tier automation. Kind automation gap. Severity low. Confidence high. Why it matters: Dependabot bundler directory / does not refresh gemfiles/*.gemfile.lock. scorecard.yml still pins actions/checkout 9c091bb (v7.0.0) while test.yml uses 3d3c42e5 (v7.0.1). ossf/scorecard-action 4eaacf05 is v2.4.3; v2.4.4 exists. mschilde/auto-label-merge-conflicts is commented as master. Makefile has no audit target. Evidence kind observed (workflow files, dependabot.yml). Smallest fix: optional action SHA refresh via Dependabot; keep appraisal locks in the on-demand audit. Do not put advisory scanners back on test.yml.
+
+## Effects
+
+ruby-advisory-db update: 1245 advisories, last updated 2026-09-16 10:35:37 -0400, commit 44784c295391577f25d198a9205eae4ba73ec4da.
+
+bundle-audit check failed on all four lockfiles with GHSA-rmxg-5p3r-j6hh (graphql 2.6.7, solution >= 2.6.9). No other scanner matches.
+
+bundle outdated --strict on the root Gemfile listed 16 outdated specs. graphql 2.6.7 vs 2.6.10 is the only outdated hot-path direct runtime gem.
+
+Libyears from Gemfile.lock vs RubyGems stable (compact-graph band: about 10 low, about 100 medium): 124 locked packages, 27 outdated, total lag 17.94 years, average 0.145 years per package, 6 packages one major behind (arbre, inherited_resources, json, marcel, diff-lcs, rubocop-capybara). Coverage floor in config/polyrun_coverage.yml is 85 percent line. No upgrade spike was run this pass.
+
+No person-facing surface in this pass.
 
 ## Next
 

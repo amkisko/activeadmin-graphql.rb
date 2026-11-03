@@ -22,6 +22,7 @@ spec/unit/policy_set_cache_spec.rb
 spec/unit/primary_key_identity_spec.rb
 spec/unit/record_source_composite_spec.rb
 spec/unit/record_source_spec.rb
+spec/unit/release_version_check_spec.rb
 spec/unit/resource_identity_spec.rb
 spec/unit/resource_query_proxy_identity_spec.rb
 spec/unit/resource_query_proxy_spec.rb

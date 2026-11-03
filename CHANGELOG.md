@@ -1,10 +1,22 @@
 # Changelog
 
+## 0.4.1 (2026-11-03)
+
+- Return `null` for member and `registered_resource` queries when the record
+  exists but instance read is denied (same shape as a missing id).
+- Return `not found` for update and destroy when instance authorization fails
+  (same message as a missing id).
+- Roll back a `resolve_create` hook persist when instance create is denied
+  (nested transaction around the hook).
+- Fail closed when release confirmation input reaches EOF.
+- Require a matching `CHANGELOG.md` version heading before `gem push`.
+- Run the test workflow on pull requests targeting `main`.
+
 ## 0.4.0 (2026-10-13)
 
 - Add field `capability_mode` (`:omit` / `:null`) and namespace hooks
   `graphql_field_capability_mode_default` and `graphql_field_visible` (RFC 0009).
-- Add `member_action_mutation … dry_run: true` with `preview`, `extra_params`,
+- Add `member_action_mutation ... dry_run: true` with `preview`, `extra_params`,
   `ok` / `refuse`, and optional `graphql_run_action_audit` (RFC 0010).
 - Add `graphql_collection_query_policy` and
   `CollectionQueryPolicy.require_visible_fields!`, inferring filter grants from
@@ -48,7 +60,7 @@
 - Put ActiveRecord validation messages on GraphQL error `extensions.errors` when create or update fails.
 - Log GraphQL execute with namespace, operation name, and error count.
 - Test ActiveAdmin 4.0.0.beta23 on Rails 8. Keep ActiveAdmin 3.5 on Rails 7.2.
-- Add `rfcs/` starter pack: process (RFC 0001), positioning (RFC 0002), and Standards Track design RFCs 0003–0005 for HTTP endpoint, schema DSL, and authorization.
+- Add `rfcs/` starter pack: process (RFC 0001), positioning (RFC 0002), and Standards Track design RFCs 0003-0005 for HTTP endpoint, schema DSL, and authorization.
 
 ## 0.2.1 (2026-07-14)
 
@@ -80,4 +92,4 @@
 ## 0.1.0 (2026-03-30)
 
 - Initial release: GraphQL API for ActiveAdmin extracted from the `activeadmin` fork, usable as `gem "activeadmin-graphql"` alongside `activeadmin` and `graphql`.
-- Docs: full guide in [`docs/graphql-api.md`](docs/graphql-api.md), including a “Migrating GraphQL clients” section (enum names, typed CRUD inputs, `ActiveAdminKeyValuePair` lists). Links from an optional ActiveAdmin fork or doc site are mainly for discovery.
+- Docs: full guide in [`docs/graphql-api.md`](docs/graphql-api.md), including a "Migrating GraphQL clients" section (enum names, typed CRUD inputs, `ActiveAdminKeyValuePair` lists). Links from an optional ActiveAdmin fork or doc site are mainly for discovery.

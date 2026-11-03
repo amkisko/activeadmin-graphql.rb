@@ -35,32 +35,32 @@ module ActiveAdmin
                 input,
                 attribute_names: aa_res.graphql_create_attribute_names
               )
-              record = if (hook = aa_res.graphql_config.resolve_create_proc)
-                hook.call(
-                  proxy: proxy,
-                  input: input,
-                  attributes: attrs,
-                  context: context,
-                  auth: auth,
-                  aa_resource: aa_res
-                )
+              if (hook = aa_res.graphql_config.resolve_create_proc)
+                ActiveRecord::Base.transaction(requires_new: true) do
+                  record = hook.call(
+                    proxy: proxy,
+                    input: input,
+                    attributes: attrs,
+                    context: context,
+                    auth: auth,
+                    aa_resource: aa_res
+                  )
+                  unless auth.authorized?(aa_res, ActiveAdmin::Authorization::CREATE, record)
+                    raise ::GraphQL::ExecutionError, "not authorized to create this record"
+                  end
+                  record
+                end
               else
-                r = proxy.build_new(attrs)
-                unless auth.authorized?(aa_res, ActiveAdmin::Authorization::CREATE, r)
+                record = proxy.build_new(attrs)
+                unless auth.authorized?(aa_res, ActiveAdmin::Authorization::CREATE, record)
                   raise ::GraphQL::ExecutionError, "not authorized to create this record"
                 end
 
-                unless r.save
-                  raise MutationExecutionError.validation(r)
+                unless record.save
+                  raise MutationExecutionError.validation(record)
                 end
-                r
+                record
               end
-
-              unless auth.authorized?(aa_res, ActiveAdmin::Authorization::CREATE, record)
-                raise ::GraphQL::ExecutionError, "not authorized to create this record"
-              end
-
-              record
             end
           end
         end

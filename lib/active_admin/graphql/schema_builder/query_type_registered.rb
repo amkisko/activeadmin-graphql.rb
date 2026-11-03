@@ -42,10 +42,7 @@ module ActiveAdmin
                 graph_params: graph_params
               )
               return nil unless record
-
-              unless auth.authorized?(aa_res, ActiveAdmin::Authorization::READ, record)
-                raise ::GraphQL::ExecutionError, "not authorized to read this record"
-              end
+              return nil unless auth.authorized?(aa_res, ActiveAdmin::Authorization::READ, record)
 
               record
             end

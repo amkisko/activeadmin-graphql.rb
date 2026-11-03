@@ -38,9 +38,8 @@ module ActiveAdmin
               )
               record = proxy.find_member(rid)
               raise ::GraphQL::ExecutionError, "not found" unless record
-
               unless auth.authorized?(aa_res, ActiveAdmin::Authorization::UPDATE, record)
-                raise ::GraphQL::ExecutionError, "not authorized to update this record"
+                raise ::GraphQL::ExecutionError, "not found"
               end
 
               attrs = sb.assignable_slice_from_input(
@@ -105,9 +104,8 @@ module ActiveAdmin
               )
               record = proxy.find_member(rid)
               raise ::GraphQL::ExecutionError, "not found" unless record
-
               unless auth.authorized?(aa_res, ActiveAdmin::Authorization::DESTROY, record)
-                raise ::GraphQL::ExecutionError, "not authorized to destroy this record"
+                raise ::GraphQL::ExecutionError, "not found"
               end
 
               if (hook = aa_res.graphql_config.resolve_destroy_proc)

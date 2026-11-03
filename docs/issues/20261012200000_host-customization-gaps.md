@@ -1,5 +1,9 @@
 # Host customization gaps
 
+## Participants
+
+Andrei Makarov (@amkisko)
+
 ## Decisions
 
 The gem owns mechanics: when a field is visible, null, or omitted; dry-run
@@ -12,7 +16,7 @@ profiles stay incompatible with graphql_capabilities.
 
 ## Effects
 
-RFCs 0009–0013 specify the contract. Implementation landed on the feature
+RFCs 0009-0013 specify the contract. Implementation landed on the feature
 branch with request coverage for each hook.
 
 ## Next
@@ -23,4 +27,4 @@ capability defaults, then confirm helpers.
 
 ## Source
 
-RFCs 0009–0013. docs/changelogs/20261012200000_host-customization-hooks.md.
+RFCs 0009-0013. docs/changelogs/20261012200000_host-customization-hooks.md.

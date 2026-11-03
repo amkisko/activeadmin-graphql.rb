@@ -1,5 +1,9 @@
 # Host customization hooks
 
+## Participants
+
+Andrei Makarov (@amkisko)
+
 ## Decisions
 
 Ship generic namespace hooks and DSL for field capability null mode, member-action
@@ -21,7 +25,7 @@ duplicated these mechanics after upgrading.
 
 ## Source
 
-RFCs 0009–0013. Specs under spec/requests/graphql_capability_mode_spec.rb,
+RFCs 0009-0013. Specs under spec/requests/graphql_capability_mode_spec.rb,
 graphql_member_action_dry_run_spec.rb, graphql_collection_query_policy_spec.rb,
 graphql_run_action_capability_default_spec.rb,
 graphql_run_action_confirm_spec.rb.
