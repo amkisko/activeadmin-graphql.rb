@@ -211,7 +211,7 @@ GEM
     parser (3.3.12.0)
       ast (~> 2.4.1)
       racc
-    polyrun (2.2.4)
+    polyrun (2.2.9)
     pp (0.6.4)
       prettyprint
     prettyprint (0.2.0)
@@ -411,7 +411,7 @@ DEPENDENCIES
   devise (>= 4.9)
   json (>= 2.21.2, < 3)
   parallel_tests (~> 5.7)
-  polyrun (>= 2.2.0)
+  polyrun (>= 2.2.9)
   prosopite (~> 2.0)
   rails (~> 7.2, >= 7.2.3.2)
   rbs (~> 4)
@@ -503,7 +503,7 @@ CHECKSUMS
   parallel (2.2.0) sha256=e1059c5fd7b649558a0aec38a769f06a42942bdb40503d005a59c352fe011cd8
   parallel_tests (5.8.0) sha256=181898cbee2ffb1c796274ce31d27f792a421324609bfc7e9b5531d929d91eda
   parser (3.3.12.0) sha256=21a6d7f755d5a24dfbdc6e6b772e4e879a52e7631a88bc5a3a134606052c9828
-  polyrun (2.2.4) sha256=3ad9a48a1b8c6ce13ad8cb8b6b66cbe45a622efbcabc761304cec3156343f8d2
+  polyrun (2.2.9) sha256=0ea6ea3590f3756e30fc5adb2358129ba4142cb1b86ebd7da975873444970ec3
   pp (0.6.4) sha256=dfcb0fce700c41456265922884f9fe195d7fbb0674a3578e6c0f69588e82b570
   prettyprint (0.2.0) sha256=2bc9e15581a94742064a3cc8b0fb9d45aae3d03a1baa6ef80922627a0766f193
   prism (1.9.0) sha256=7b530c6a9f92c24300014919c9dcbc055bf4cdf51ec30aed099b06cd6674ef85

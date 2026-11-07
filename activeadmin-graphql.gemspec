@@ -53,7 +53,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "parallel_tests", "~> 5.7"
   spec.add_development_dependency "rails", ">= 6.1"
   spec.add_development_dependency "rspec", "~> 3"
-  spec.add_development_dependency "polyrun", ">= 2.2.0"
+  spec.add_development_dependency "polyrun", ">= 2.2.9"
   spec.add_development_dependency "prosopite", "~> 2.0"
   spec.add_development_dependency "rspec-rails", ">= 6"
   spec.add_development_dependency "rubocop", "~> 1.91"
